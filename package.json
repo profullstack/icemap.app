@@ -1,0 +1,16 @@
+{
+  "name": "icemap.app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @icemap/web dev",
+    "build": "pnpm --filter @icemap/web build",
+    "start": "pnpm --filter @icemap/web start",
+    "lint": "pnpm --filter @icemap/web lint",
+    "test": "pnpm --filter @icemap/web test"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

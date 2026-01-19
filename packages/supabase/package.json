@@ -1,0 +1,9 @@
+{
+  "name": "@icemap/supabase",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "db:migrate": "echo 'Run migrations via Supabase CLI'",
+    "db:seed": "echo 'Run seed via Supabase CLI'"
+  }
+}

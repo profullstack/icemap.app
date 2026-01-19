@@ -1,0 +1,201 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
+import { getFingerprint } from '@/lib/fingerprint'
+import type { Post, BoundingBox } from '@/types'
+
+const RATE_LIMIT_WINDOW = parseInt(process.env.RATE_LIMIT_WINDOW_SECONDS || '3600', 10)
+
+// GET /api/posts - Fetch posts within bounding box
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+
+  const north = parseFloat(searchParams.get('north') || '')
+  const south = parseFloat(searchParams.get('south') || '')
+  const east = parseFloat(searchParams.get('east') || '')
+  const west = parseFloat(searchParams.get('west') || '')
+
+  if (isNaN(north) || isNaN(south) || isNaN(east) || isNaN(west)) {
+    return NextResponse.json(
+      { error: 'Missing or invalid bounding box parameters' },
+      { status: 400 }
+    )
+  }
+
+  // Query posts within bounding box using PostGIS
+  const { data: posts, error } = await supabase
+    .rpc('get_posts_in_bounds', {
+      min_lat: south,
+      max_lat: north,
+      min_lng: west,
+      max_lng: east,
+    })
+
+  if (error) {
+    // If the function doesn't exist, fall back to a raw query
+    const { data: fallbackPosts, error: fallbackError } = await supabase
+      .from('posts')
+      .select(`
+        id,
+        city,
+        state,
+        cross_street,
+        summary,
+        incident_type,
+        created_at,
+        expires_at
+      `)
+      .gte('expires_at', new Date().toISOString())
+
+    if (fallbackError) {
+      console.error('Error fetching posts:', fallbackError)
+      return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 })
+    }
+
+    return NextResponse.json({ posts: fallbackPosts || [] })
+  }
+
+  return NextResponse.json({ posts: posts || [] })
+}
+
+// POST /api/posts - Create a new post
+export async function POST(request: NextRequest) {
+  const fingerprint = await getFingerprint()
+
+  // Check rate limit
+  const { data: canPost } = await supabase.rpc('can_user_post', {
+    p_fingerprint: fingerprint,
+    p_window_seconds: RATE_LIMIT_WINDOW,
+  })
+
+  if (canPost === false) {
+    return NextResponse.json(
+      { error: 'Rate limited. Please wait before posting again.' },
+      { status: 429 }
+    )
+  }
+
+  let body: {
+    lat: number
+    lng: number
+    summary: string
+    incident_type: string
+    city?: string
+    state?: string
+    cross_street?: string
+    media_ids?: string[]
+  }
+
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+
+  const { lat, lng, summary, incident_type, city, state, cross_street, media_ids } = body
+
+  // Validate required fields
+  if (!lat || !lng || !summary || !incident_type) {
+    return NextResponse.json(
+      { error: 'Missing required fields: lat, lng, summary, incident_type' },
+      { status: 400 }
+    )
+  }
+
+  // Validate coordinates
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    return NextResponse.json({ error: 'Invalid coordinates' }, { status: 400 })
+  }
+
+  // Validate summary length
+  if (summary.length > 500) {
+    return NextResponse.json(
+      { error: 'Summary must be 500 characters or less' },
+      { status: 400 }
+    )
+  }
+
+  // Create the post
+  const { data: post, error } = await supabase
+    .from('posts')
+    .insert({
+      location: `POINT(${lng} ${lat})`,
+      city,
+      state,
+      cross_street,
+      summary,
+      incident_type,
+      fingerprint,
+    })
+    .select('id')
+    .single()
+
+  if (error) {
+    console.error('Error creating post:', error)
+    return NextResponse.json({ error: 'Failed to create post' }, { status: 500 })
+  }
+
+  // Link media to post if provided
+  if (media_ids && media_ids.length > 0) {
+    await supabase
+      .from('media')
+      .update({ post_id: post.id })
+      .in('id', media_ids)
+  }
+
+  // Record the post for rate limiting
+  await supabase.rpc('record_post', { p_fingerprint: fingerprint })
+
+  // Find and notify subscriptions (async, don't wait)
+  notifySubscribers(lat, lng, post.id, summary, incident_type).catch(console.error)
+
+  return NextResponse.json({ id: post.id }, { status: 201 })
+}
+
+async function notifySubscribers(
+  lat: number,
+  lng: number,
+  postId: string,
+  summary: string,
+  incidentType: string
+) {
+  const { data: subscriptions } = await supabase.rpc('find_subscriptions_for_post', {
+    p_lat: lat,
+    p_lng: lng,
+  })
+
+  if (!subscriptions || subscriptions.length === 0) return
+
+  // Import web-push dynamically to avoid loading it if not needed
+  const webPush = await import('web-push')
+
+  webPush.setVapidDetails(
+    `mailto:${process.env.ADMIN_EMAIL || 'admin@icemap.app'}`,
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '',
+    process.env.VAPID_PRIVATE_KEY || ''
+  )
+
+  const payload = JSON.stringify({
+    title: `New ${incidentType.replace('_', ' ')} nearby`,
+    body: summary.slice(0, 100),
+    url: `/post/${postId}`,
+  })
+
+  for (const sub of subscriptions) {
+    if (sub.push_endpoint && sub.push_p256dh && sub.push_auth) {
+      try {
+        await webPush.sendNotification(
+          {
+            endpoint: sub.push_endpoint,
+            keys: {
+              p256dh: sub.push_p256dh,
+              auth: sub.push_auth,
+            },
+          },
+          payload
+        )
+      } catch (error) {
+        console.error('Failed to send push notification:', error)
+      }
+    }
+  }
+}
