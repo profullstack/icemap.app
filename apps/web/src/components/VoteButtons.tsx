@@ -48,37 +48,43 @@ export default function VoteButtons({ postId, voteCount, userVote, onVoteChange 
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
       <button
         onClick={() => handleVote(1)}
         disabled={loading}
-        className={`p-2 rounded-lg transition-colors ${
+        className={`group relative p-2.5 rounded-xl transition-all duration-200 ${
           userVote === 1
-            ? 'bg-green-600 text-white'
-            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg shadow-emerald-500/25'
+            : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-emerald-400 border border-white/10 hover:border-emerald-500/30'
         }`}
         aria-label="Upvote"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className={`w-5 h-5 transition-transform ${userVote !== 1 ? 'group-hover:-translate-y-0.5' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
         </svg>
       </button>
-      <span className={`min-w-[2rem] text-center font-medium ${
-        voteCount > 0 ? 'text-green-400' : voteCount < 0 ? 'text-red-400' : 'text-gray-400'
+
+      <div className={`min-w-[3rem] py-2 px-3 rounded-xl text-center font-bold text-lg transition-colors ${
+        voteCount > 0
+          ? 'text-emerald-400 bg-emerald-500/10'
+          : voteCount < 0
+            ? 'text-rose-400 bg-rose-500/10'
+            : 'text-gray-400 bg-white/5'
       }`}>
-        {voteCount}
-      </span>
+        {voteCount > 0 ? '+' : ''}{voteCount}
+      </div>
+
       <button
         onClick={() => handleVote(-1)}
         disabled={loading}
-        className={`p-2 rounded-lg transition-colors ${
+        className={`group relative p-2.5 rounded-xl transition-all duration-200 ${
           userVote === -1
-            ? 'bg-red-600 text-white'
-            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            ? 'bg-gradient-to-r from-rose-500 to-red-500 text-white shadow-lg shadow-rose-500/25'
+            : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-rose-400 border border-white/10 hover:border-rose-500/30'
         }`}
         aria-label="Downvote"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className={`w-5 h-5 transition-transform ${userVote !== -1 ? 'group-hover:translate-y-0.5' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>

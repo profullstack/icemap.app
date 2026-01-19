@@ -21,27 +21,39 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 })
 
-// Custom incident icons
-const incidentIcons: Record<string, L.DivIcon> = {
-  traffic_accident: createIcon('red'),
-  road_hazard: createIcon('orange'),
-  police_activity: createIcon('blue'),
-  fire_emergency: createIcon('red'),
-  weather_event: createIcon('purple'),
-  construction: createIcon('yellow'),
-  public_safety: createIcon('green'),
-  other: createIcon('gray'),
+// Gradient colors for incident types
+const incidentColors: Record<string, { from: string; to: string }> = {
+  traffic_accident: { from: '#ef4444', to: '#dc2626' },
+  road_hazard: { from: '#f97316', to: '#ea580c' },
+  police_activity: { from: '#3b82f6', to: '#2563eb' },
+  fire_emergency: { from: '#ef4444', to: '#b91c1c' },
+  weather_event: { from: '#8b5cf6', to: '#7c3aed' },
+  construction: { from: '#eab308', to: '#ca8a04' },
+  public_safety: { from: '#22c55e', to: '#16a34a' },
+  other: { from: '#6b7280', to: '#4b5563' },
 }
 
-function createIcon(color: string): L.DivIcon {
-  return L.divIcon({
-    className: 'custom-marker',
-    html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-    popupAnchor: [0, -12],
-  })
-}
+// Custom incident icons with gradient effect
+const incidentIcons: Record<string, L.DivIcon> = Object.fromEntries(
+  Object.entries(incidentColors).map(([key, { from, to }]) => [
+    key,
+    L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="
+        background: linear-gradient(135deg, ${from} 0%, ${to} 100%);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 0 2px rgba(255,255,255,0.2);
+        transition: transform 0.2s;
+      "></div>`,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14],
+      popupAnchor: [0, -14],
+    }),
+  ])
+)
 
 interface MapPost extends Post {
   location: { lat: number; lng: number }
@@ -100,16 +112,39 @@ function MapContent({
       const icon = incidentIcons[post.incident_type] || incidentIcons.other
       const marker = L.marker([post.location.lat, post.location.lng], { icon })
 
+      const colors = incidentColors[post.incident_type] || incidentColors.other
       const popupContent = `
-        <div style="min-width: 200px;">
-          <div style="font-weight: 600; margin-bottom: 4px; text-transform: capitalize;">
+        <div style="min-width: 220px; font-family: system-ui, -apple-system, sans-serif;">
+          <div style="
+            display: inline-block;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, ${colors.from} 0%, ${colors.to} 100%);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+          ">
             ${post.incident_type.replace(/_/g, ' ')}
           </div>
-          <p style="margin: 0 0 8px; color: #666; font-size: 14px;">
+          <p style="margin: 0 0 12px; color: #9ca3af; font-size: 14px; line-height: 1.5;">
             ${post.summary.slice(0, 100)}${post.summary.length > 100 ? '...' : ''}
           </p>
-          <a href="/post/${post.id}" style="color: #2563eb; text-decoration: none; font-size: 14px;">
-            View Details &rarr;
+          <a href="/post/${post.id}" style="
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #818cf8;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.2s;
+          " onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='#818cf8'">
+            View Details
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
           </a>
         </div>
       `
@@ -168,22 +203,27 @@ function LocateButton() {
     <button
       onClick={handleLocate}
       disabled={locating}
-      className="absolute bottom-24 right-4 z-[1000] rounded-full bg-white p-3 shadow-lg hover:bg-gray-100 disabled:opacity-50"
+      className="absolute bottom-24 right-4 z-[1000] group"
       aria-label="Find my location"
     >
-      {locating ? (
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-      ) : (
-        <svg className="h-6 w-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-          />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      )}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-40 group-hover:opacity-60 transition-opacity" />
+        <div className="relative glass rounded-2xl p-3.5 border border-white/20 group-hover:border-white/30 transition-all group-hover:scale-105 group-disabled:opacity-50">
+          {locating ? (
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-400 border-t-transparent" />
+          ) : (
+            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          )}
+        </div>
+      </div>
     </button>
   )
 }
@@ -258,14 +298,30 @@ export default function Map() {
 
       {/* Loading indicator */}
       {loading && (
-        <div className="absolute top-4 right-4 z-[1000] px-3 py-2 bg-white rounded-lg shadow-lg">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+        <div className="absolute top-4 right-4 z-[1000] glass rounded-xl px-4 py-2.5 flex items-center gap-2">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-400 border-t-transparent" />
+          <span className="text-white/80 text-sm font-medium">Loading...</span>
         </div>
       )}
 
       {/* Instructions */}
-      <div className="absolute bottom-4 left-4 z-[1000] px-3 py-2 bg-black/70 rounded-lg text-white text-sm">
-        Tap map to report an incident
+      <div className="absolute bottom-4 left-4 z-[1000]">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl blur" />
+          <div className="relative glass rounded-xl px-4 py-3 border border-white/10">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-white text-sm font-medium">Tap anywhere on the map</p>
+                <p className="text-white/60 text-xs">to report an incident</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Create post form */}
