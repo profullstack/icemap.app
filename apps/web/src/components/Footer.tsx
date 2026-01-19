@@ -74,7 +74,15 @@ export default function Footer() {
               <span className="text-gray-500 text-xs">Posts auto-delete after 8 hours</span>
             </div>
             <p className="text-gray-600 text-xs">
-              &copy; {new Date().getFullYear()} icemap.app &middot; Open source under MIT license
+              &copy; {new Date().getFullYear()}{' '}
+              <a
+                href="https://profullstack.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-white transition-colors"
+              >
+                Profullstack, Inc.
+              </a>
             </p>
           </div>
         </div>
