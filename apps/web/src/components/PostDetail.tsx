@@ -5,6 +5,7 @@ import type { Post, Comment, Media } from '@/types'
 import VoteButtons from './VoteButtons'
 import FavoriteButton from './FavoriteButton'
 import ReportButton from './ReportButton'
+import ShareButton from './ShareButton'
 import CommentsSection from './CommentsSection'
 import MediaGallery from './MediaGallery'
 import { track, events } from '@/lib/analytics'
@@ -132,6 +133,7 @@ export default function PostDetail({ postId }: Props) {
           isFavorited={post.is_favorited}
           onFavoriteChange={handleFavoriteChange}
         />
+        <ShareButton postId={post.id} />
         <ReportButton postId={post.id} />
       </div>
 

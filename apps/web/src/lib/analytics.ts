@@ -44,6 +44,10 @@ export const events = {
   REPORT_SUBMIT: 'report_submit',
   REPORT_SUCCESS: 'report_success',
 
+  // Sharing
+  SHARE_CLICK: 'share_click',
+  SHARE_SUCCESS: 'share_success',
+
   // Media
   MEDIA_UPLOAD_START: 'media_upload_start',
   MEDIA_UPLOAD_SUCCESS: 'media_upload_success',
