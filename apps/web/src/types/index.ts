@@ -18,6 +18,7 @@ export interface Post {
 }
 
 export type IncidentType =
+  | 'ice_sighting'
   | 'traffic_accident'
   | 'road_hazard'
   | 'police_activity'
@@ -27,15 +28,16 @@ export type IncidentType =
   | 'public_safety'
   | 'other'
 
-export const INCIDENT_TYPES: { value: IncidentType; label: string }[] = [
-  { value: 'traffic_accident', label: 'Traffic Accident' },
-  { value: 'road_hazard', label: 'Road Hazard' },
-  { value: 'police_activity', label: 'Police Activity' },
-  { value: 'fire_emergency', label: 'Fire/Emergency' },
-  { value: 'weather_event', label: 'Weather Event' },
-  { value: 'construction', label: 'Construction' },
-  { value: 'public_safety', label: 'Public Safety' },
-  { value: 'other', label: 'Other' },
+export const INCIDENT_TYPES: { value: IncidentType; label: string; icon: string }[] = [
+  { value: 'ice_sighting', label: 'ICE Sighting', icon: 'eye' },
+  { value: 'traffic_accident', label: 'Traffic Accident', icon: 'car' },
+  { value: 'road_hazard', label: 'Road Hazard', icon: 'warning' },
+  { value: 'police_activity', label: 'Police Activity', icon: 'shield' },
+  { value: 'fire_emergency', label: 'Fire/Emergency', icon: 'fire' },
+  { value: 'weather_event', label: 'Weather Event', icon: 'cloud' },
+  { value: 'construction', label: 'Construction', icon: 'cone' },
+  { value: 'public_safety', label: 'Public Safety', icon: 'users' },
+  { value: 'other', label: 'Other', icon: 'more' },
 ]
 
 export interface Media {

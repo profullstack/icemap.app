@@ -16,6 +16,7 @@ export const events = {
   MAP_LOCATE: 'map_locate',
   MAP_CLICK: 'map_click',
   MAP_ZOOM: 'map_zoom',
+  MAP_FILTER: 'map_filter',
 
   // Post interactions
   POST_VIEW: 'post_view',

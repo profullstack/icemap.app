@@ -23,6 +23,7 @@ L.Icon.Default.mergeOptions({
 
 // Gradient colors for incident types
 const incidentColors: Record<string, { from: string; to: string }> = {
+  ice_sighting: { from: '#06b6d4', to: '#0891b2' },
   traffic_accident: { from: '#ef4444', to: '#dc2626' },
   road_hazard: { from: '#f97316', to: '#ea580c' },
   police_activity: { from: '#3b82f6', to: '#2563eb' },
@@ -31,6 +32,19 @@ const incidentColors: Record<string, { from: string; to: string }> = {
   construction: { from: '#eab308', to: '#ca8a04' },
   public_safety: { from: '#22c55e', to: '#16a34a' },
   other: { from: '#6b7280', to: '#4b5563' },
+}
+
+// Filter labels for display
+const filterLabels: Record<string, string> = {
+  ice_sighting: 'ICE',
+  traffic_accident: 'Traffic',
+  road_hazard: 'Hazard',
+  police_activity: 'Police',
+  fire_emergency: 'Fire',
+  weather_event: 'Weather',
+  construction: 'Construction',
+  public_safety: 'Safety',
+  other: 'Other',
 }
 
 // Custom incident icons with gradient effect
@@ -232,9 +246,34 @@ export default function Map() {
   const [posts, setPosts] = useState<MapPost[]>([])
   const [createPostLocation, setCreatePostLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [loading, setLoading] = useState(false)
+  const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set(Object.keys(incidentColors)))
+  const [showFilters, setShowFilters] = useState(false)
   const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const boundsRef = useRef<L.LatLngBounds | null>(null)
+
+  const toggleFilter = (type: string) => {
+    track(events.MAP_FILTER, { type, action: activeFilters.has(type) ? 'remove' : 'add' })
+    setActiveFilters(prev => {
+      const next = new Set(prev)
+      if (next.has(type)) {
+        next.delete(type)
+      } else {
+        next.add(type)
+      }
+      return next
+    })
+  }
+
+  const selectAll = () => {
+    setActiveFilters(new Set(Object.keys(incidentColors)))
+  }
+
+  const selectNone = () => {
+    setActiveFilters(new Set())
+  }
 
   const fetchPosts = useCallback(async (bounds: L.LatLngBounds) => {
+    boundsRef.current = bounds
     // Debounce fetch
     if (fetchTimeoutRef.current) {
       clearTimeout(fetchTimeoutRef.current)
@@ -275,6 +314,9 @@ export default function Map() {
     }, 300)
   }, [])
 
+  // Filter posts based on active filters
+  const filteredPosts = posts.filter(post => activeFilters.has(post.incident_type))
+
   const handleMapClick = useCallback((lat: number, lng: number) => {
     track(events.POST_CREATE_START, { lat, lng })
     setCreatePostLocation({ lat, lng })
@@ -292,7 +334,7 @@ export default function Map() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <MapContent posts={posts} onBoundsChange={fetchPosts} onMapClick={handleMapClick} />
+        <MapContent posts={filteredPosts} onBoundsChange={fetchPosts} onMapClick={handleMapClick} />
         <LocateButton />
       </MapContainer>
 
@@ -301,6 +343,88 @@ export default function Map() {
         <div className="absolute top-4 right-4 z-[1000] glass rounded-xl px-4 py-2.5 flex items-center gap-2">
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-400 border-t-transparent" />
           <span className="text-white/80 text-sm font-medium">Loading...</span>
+        </div>
+      )}
+
+      {/* Filter toggle button */}
+      <button
+        onClick={() => setShowFilters(!showFilters)}
+        className="absolute top-4 left-4 z-[1000] group"
+        aria-label="Filter incidents"
+      >
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl blur opacity-40 group-hover:opacity-60 transition-opacity" />
+          <div className="relative glass rounded-xl px-4 py-2.5 border border-white/20 group-hover:border-white/30 transition-all flex items-center gap-2">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <span className="text-white text-sm font-medium">Filter</span>
+            {activeFilters.size < Object.keys(incidentColors).length && (
+              <span className="w-5 h-5 rounded-full bg-indigo-500 text-white text-xs flex items-center justify-center font-bold">
+                {activeFilters.size}
+              </span>
+            )}
+          </div>
+        </div>
+      </button>
+
+      {/* Filter panel */}
+      {showFilters && (
+        <div className="absolute top-16 left-4 z-[1000] w-72">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-2xl blur" />
+            <div className="relative glass rounded-2xl border border-white/10 overflow-hidden">
+              <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
+                <span className="text-white font-medium text-sm">Filter by Type</span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={selectAll}
+                    className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                  >
+                    All
+                  </button>
+                  <span className="text-gray-600">|</span>
+                  <button
+                    onClick={selectNone}
+                    className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                  >
+                    None
+                  </button>
+                </div>
+              </div>
+              <div className="p-3 grid grid-cols-3 gap-2">
+                {Object.entries(incidentColors).map(([type, colors]) => (
+                  <button
+                    key={type}
+                    onClick={() => toggleFilter(type)}
+                    className={`relative flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-all ${
+                      activeFilters.has(type)
+                        ? 'bg-white/10 ring-2 ring-offset-1 ring-offset-transparent'
+                        : 'bg-white/5 hover:bg-white/10 opacity-50'
+                    }`}
+                    style={{
+                      '--tw-ring-color': activeFilters.has(type) ? colors.from : 'transparent',
+                    } as React.CSSProperties}
+                  >
+                    <div
+                      className="w-6 h-6 rounded-full border-2 border-white shadow-lg"
+                      style={{
+                        background: `linear-gradient(135deg, ${colors.from} 0%, ${colors.to} 100%)`,
+                      }}
+                    />
+                    <span className="text-white text-[10px] font-medium leading-tight text-center">
+                      {filterLabels[type]}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <div className="px-4 py-2 border-t border-white/10 bg-white/5">
+                <p className="text-gray-400 text-xs text-center">
+                  Showing {filteredPosts.length} of {posts.length} incidents
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
