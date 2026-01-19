@@ -110,6 +110,9 @@ export default function CitySearch() {
       duration: 1.5,
     })
 
+    // Store searched location for use by +Report button
+    window.dispatchEvent(new CustomEvent('citySearchLocation', { detail: { lat, lng } }))
+
     setQuery('')
     setResults([])
     setIsOpen(false)

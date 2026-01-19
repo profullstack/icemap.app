@@ -264,9 +264,32 @@ export default function Map() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const hasHandledReportParam = useRef(false)
+  const searchedLocationRef = useRef<{ lat: number; lng: number; timestamp: number } | null>(null)
+
+  // Listen for city search location events
+  useEffect(() => {
+    const handleCitySearchLocation = (e: CustomEvent<{ lat: number; lng: number }>) => {
+      searchedLocationRef.current = {
+        lat: e.detail.lat,
+        lng: e.detail.lng,
+        timestamp: Date.now(),
+      }
+    }
+    window.addEventListener('citySearchLocation', handleCitySearchLocation as EventListener)
+    return () => window.removeEventListener('citySearchLocation', handleCitySearchLocation as EventListener)
+  }, [])
 
   // Function to open report modal using geolocation or default location
   const openReportModal = useCallback(() => {
+    // If user searched for a location in the last 60 seconds, use that
+    const searchedLoc = searchedLocationRef.current
+    if (searchedLoc && Date.now() - searchedLoc.timestamp < 60000) {
+      window.dispatchEvent(new CustomEvent('mapFlyTo', { detail: { lat: searchedLoc.lat, lng: searchedLoc.lng } }))
+      setCreatePostLocation({ lat: searchedLoc.lat, lng: searchedLoc.lng })
+      searchedLocationRef.current = null // Clear after use
+      return
+    }
+
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
