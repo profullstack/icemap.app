@@ -117,7 +117,10 @@ export default function CitySearch() {
   if (!showInput) {
     return (
       <button
-        onClick={() => setShowInput(true)}
+        onClick={(e) => {
+          e.stopPropagation()
+          setShowInput(true)
+        }}
         className="absolute top-4 right-4 z-[1000] group"
         aria-label="Search location"
       >
@@ -135,7 +138,10 @@ export default function CitySearch() {
   }
 
   return (
-    <div className="city-search-container absolute top-4 right-4 z-[1000] w-72">
+    <div
+      className="city-search-container absolute top-4 right-4 z-[1000] w-72"
+      onClick={(e) => e.stopPropagation()}
+    >
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl blur" />
         <form onSubmit={handleSubmit} className="relative">

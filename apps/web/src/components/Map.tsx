@@ -87,6 +87,15 @@ function MapContent({
   const map = useMap()
   const markerClusterRef = useRef<L.MarkerClusterGroup | null>(null)
 
+  // Listen for flyTo events from +Report button
+  useEffect(() => {
+    const handleFlyTo = (e: CustomEvent<{ lat: number; lng: number }>) => {
+      map.flyTo([e.detail.lat, e.detail.lng], 14, { duration: 1.5 })
+    }
+    window.addEventListener('mapFlyTo', handleFlyTo as EventListener)
+    return () => window.removeEventListener('mapFlyTo', handleFlyTo as EventListener)
+  }, [map])
+
   // Initialize marker cluster group
   useEffect(() => {
     const loadMarkerCluster = async () => {
@@ -261,10 +270,11 @@ export default function Map() {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setCreatePostLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          })
+          const lat = position.coords.latitude
+          const lng = position.coords.longitude
+          // Fly map to user's location
+          window.dispatchEvent(new CustomEvent('mapFlyTo', { detail: { lat, lng } }))
+          setCreatePostLocation({ lat, lng })
         },
         () => {
           // Fallback to map center or default
