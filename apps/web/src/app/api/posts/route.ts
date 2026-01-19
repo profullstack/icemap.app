@@ -31,11 +31,13 @@ export async function GET(request: NextRequest) {
     })
 
   if (error) {
+    console.error('get_posts_in_bounds RPC error, using fallback:', error)
     // If the function doesn't exist, fall back to a raw query
     const { data: fallbackPosts, error: fallbackError } = await supabase
       .from('posts')
       .select(`
         id,
+        location,
         city,
         state,
         cross_street,

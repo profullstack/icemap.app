@@ -134,8 +134,8 @@ export async function POST(request: NextRequest) {
 }
 
 async function processImage(inputPath: string, outputPath: string) {
-  // Use ImageMagick to convert and resize to JPEG
-  const cmd = `convert "${inputPath}" -resize ${IMAGE_MAX_WIDTH}x${IMAGE_MAX_HEIGHT}\\> -quality ${IMAGE_QUALITY} -strip "${outputPath}"`
+  // Use ImageMagick v7 (magick) to convert and resize to JPEG
+  const cmd = `magick "${inputPath}" -resize ${IMAGE_MAX_WIDTH}x${IMAGE_MAX_HEIGHT}\\> -quality ${IMAGE_QUALITY} -strip "${outputPath}"`
   try {
     const { stdout, stderr } = await execAsync(cmd)
     if (stderr) console.log('ImageMagick stderr:', stderr)
