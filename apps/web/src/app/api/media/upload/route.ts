@@ -9,7 +9,7 @@ import { promisify } from 'util'
 
 const execAsync = promisify(exec)
 
-const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE_BYTES || '52428800', 10) // 50MB
+const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE_BYTES || '524288000', 10) // 500MB
 const MAX_MEDIA_PER_POST = parseInt(process.env.MAX_MEDIA_PER_POST || '5', 10)
 const IMAGE_QUALITY = parseInt(process.env.IMAGE_QUALITY || '80', 10)
 const IMAGE_MAX_WIDTH = parseInt(process.env.IMAGE_MAX_WIDTH || '1920', 10)
