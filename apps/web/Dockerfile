@@ -33,7 +33,6 @@ ENV NEXT_PUBLIC_DATAFAST_ID=$NEXT_PUBLIC_DATAFAST_ID
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
-COPY --from=deps /app/packages/supabase/node_modules ./packages/supabase/node_modules
 
 # Copy source files
 COPY . .
