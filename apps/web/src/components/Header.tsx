@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { track, events } from '@/lib/analytics'
@@ -7,6 +8,32 @@ import { track, events } from '@/lib/analytics'
 export default function Header() {
   const pathname = usePathname()
   const isMapPage = pathname === '/'
+  const [locating, setLocating] = useState(false)
+
+  const handleFindLocation = () => {
+    if (!('geolocation' in navigator)) {
+      alert('Geolocation is not supported by your browser')
+      return
+    }
+
+    setLocating(true)
+    track(events.MAP_LOCATE, { source: 'header' })
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude
+        const lng = position.coords.longitude
+        window.dispatchEvent(new CustomEvent('mapFlyTo', { detail: { lat, lng } }))
+        setLocating(false)
+      },
+      (error) => {
+        console.error('Geolocation error:', error)
+        alert('Unable to get your location. Please check your browser permissions.')
+        setLocating(false)
+      },
+      { timeout: 10000, maximumAge: 60000 }
+    )
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[1000] glass border-b border-white/10">
@@ -51,6 +78,25 @@ export default function Header() {
               </svg>
               <span className="hidden sm:inline">Report</span>
             </Link>
+          )}
+
+          {/* Find My Location Button - only on map page */}
+          {isMapPage && (
+            <button
+              onClick={handleFindLocation}
+              disabled={locating}
+              className="relative p-2.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-50"
+              aria-label="Find my location"
+            >
+              {locating ? (
+                <div className="w-5 h-5 animate-spin rounded-full border-2 border-indigo-400 border-t-transparent" />
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              )}
+            </button>
           )}
 
           <Link

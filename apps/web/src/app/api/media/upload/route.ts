@@ -134,13 +134,26 @@ export async function POST(request: NextRequest) {
 }
 
 async function processImage(inputPath: string, outputPath: string) {
-  // Use ImageMagick to convert and resize
+  // Use ImageMagick to convert and resize to JPEG
   const cmd = `convert "${inputPath}" -resize ${IMAGE_MAX_WIDTH}x${IMAGE_MAX_HEIGHT}\\> -quality ${IMAGE_QUALITY} -strip "${outputPath}"`
-  await execAsync(cmd)
+  try {
+    const { stdout, stderr } = await execAsync(cmd)
+    if (stderr) console.log('ImageMagick stderr:', stderr)
+  } catch (error) {
+    console.error('ImageMagick error:', error)
+    throw error
+  }
 }
 
 async function processVideo(inputPath: string, outputPath: string) {
-  // Use FFmpeg to convert and resize
-  const cmd = `ffmpeg -i "${inputPath}" -c:v libx264 -preset fast -crf 23 -b:v ${VIDEO_BITRATE} -vf "scale='min(${VIDEO_MAX_WIDTH},iw)':min'(${VIDEO_MAX_HEIGHT},ih)':force_original_aspect_ratio=decrease" -c:a aac -b:a 128k -movflags +faststart -y "${outputPath}"`
-  await execAsync(cmd, { timeout: 300000 }) // 5 minute timeout for video processing
+  // Use FFmpeg to convert to web-safe H.264 MP4
+  // -movflags +faststart moves moov atom to beginning for web streaming
+  const cmd = `ffmpeg -i "${inputPath}" -c:v libx264 -preset fast -crf 23 -b:v ${VIDEO_BITRATE} -vf "scale='min(${VIDEO_MAX_WIDTH},iw)':-2" -c:a aac -b:a 128k -movflags +faststart -y "${outputPath}"`
+  try {
+    const { stdout, stderr } = await execAsync(cmd, { timeout: 300000 })
+    if (stderr) console.log('FFmpeg stderr:', stderr)
+  } catch (error) {
+    console.error('FFmpeg error:', error)
+    throw error
+  }
 }

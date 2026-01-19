@@ -62,7 +62,7 @@ export default function MediaGallery({ media }: Props) {
       {/* Lightbox */}
       {selectedIndex !== null && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
+          className="fixed inset-0 z-[2000] bg-black/90 flex items-center justify-center"
           onClick={() => setSelectedIndex(null)}
         >
           <button
