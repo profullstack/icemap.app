@@ -14,8 +14,8 @@ export default function MediaGallery({ media }: Props) {
   if (media.length === 0) return null
 
   const getMediaUrl = (m: Media) => {
-    const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-    return `${baseUrl}/storage/v1/object/public/media/${m.storage_path}`
+    // Use our proxy API to serve media files
+    return `/api/media/${m.storage_path}`
   }
 
   return (

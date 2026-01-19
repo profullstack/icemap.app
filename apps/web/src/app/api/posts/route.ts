@@ -142,31 +142,28 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Create the post
-  const locationWKT = `POINT(${lng} ${lat})`
-  console.log('POST /api/posts - inserting with location:', locationWKT)
+  // Create the post using RPC function for proper geography handling
+  console.log('POST /api/posts - calling create_post RPC with:', { lat, lng })
 
-  const { data: post, error } = await supabase
-    .from('posts')
-    .insert({
-      location: locationWKT,
-      city,
-      state,
-      cross_street,
-      summary,
-      incident_type,
-      fingerprint,
-      links: links || [],
-    })
-    .select('id, location')
-    .single()
+  const { data: postId, error } = await supabase.rpc('create_post', {
+    p_lat: lat,
+    p_lng: lng,
+    p_city: city || null,
+    p_state: state || null,
+    p_cross_street: cross_street || null,
+    p_summary: summary,
+    p_incident_type: incident_type,
+    p_fingerprint: fingerprint,
+    p_links: links || [],
+  })
 
   if (error) {
     console.error('Error creating post:', error)
     return NextResponse.json({ error: 'Failed to create post' }, { status: 500 })
   }
 
-  console.log('POST /api/posts - created post:', post)
+  const post = { id: postId }
+  console.log('POST /api/posts - created post with id:', postId)
 
   // Link media to post if provided
   if (media_ids && media_ids.length > 0) {
