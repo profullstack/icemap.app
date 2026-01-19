@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
   // Get raw body for signature verification
   const rawBody = await request.text()
 
-  // Verify signature
-  const signature = request.headers.get('x-coinpay-signature')
+  // Verify signature (check both header names for compatibility)
+  const signature = request.headers.get('x-coinpay-signature') ?? request.headers.get('x-webhook-signature')
   if (!signature || !verifySignature(rawBody, signature, webhookSecret)) {
     console.error('Invalid webhook signature')
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
