@@ -17,9 +17,7 @@ export async function GET(request: NextRequest) {
       summary,
       incident_type,
       created_at,
-      expires_at,
-      vote_count,
-      comment_count
+      expires_at
     `)
     .gte('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
