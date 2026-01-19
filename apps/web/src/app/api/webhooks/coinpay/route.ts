@@ -2,15 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 
 interface WebhookPayload {
-  event: string
+  id: string
   type: string
-  payment_id: string
+  data: {
+    payment_id: string
+    amount_crypto: string
+    amount_usd: string
+    currency: string
+    status: string
+    confirmations?: number
+    tx_hash?: string
+    message?: string
+  }
+  created_at: string
   business_id: string
-  amount_crypto: string
-  amount_usd: string
-  currency: string
-  status: string
-  timestamp: string
 }
 
 function verifySignature(
@@ -76,19 +81,19 @@ export async function POST(request: NextRequest) {
 
   // Log the webhook event
   console.log('CoinPayPortal webhook received:', {
-    event: payload.event,
-    payment_id: payload.payment_id,
-    amount_usd: payload.amount_usd,
-    currency: payload.currency,
-    status: payload.status,
+    type: payload.type,
+    payment_id: payload.data?.payment_id,
+    amount_usd: payload.data?.amount_usd,
+    currency: payload.data?.currency,
+    status: payload.data?.status,
   })
 
   // Handle different event types
-  switch (payload.event) {
+  switch (payload.type) {
     case 'payment.confirmed':
       // Payment has been confirmed on the blockchain
       console.log(
-        `Donation confirmed: $${payload.amount_usd} in ${payload.currency}`
+        `Donation confirmed: $${payload.data.amount_usd} in ${payload.data.currency}`
       )
       // You could store this in the database, send a thank you email, etc.
       break
@@ -96,17 +101,22 @@ export async function POST(request: NextRequest) {
     case 'payment.forwarded':
       // Funds have been forwarded to merchant wallet
       console.log(
-        `Donation forwarded: $${payload.amount_usd} in ${payload.currency}`
+        `Donation forwarded: $${payload.data.amount_usd} in ${payload.data.currency}`
       )
       break
 
     case 'payment.expired':
       // Payment request expired without receiving funds
-      console.log(`Donation expired: payment_id=${payload.payment_id}`)
+      console.log(`Donation expired: payment_id=${payload.data.payment_id}`)
+      break
+
+    case 'test.webhook':
+      // Test webhook from CoinPayPortal dashboard
+      console.log('Test webhook received successfully')
       break
 
     default:
-      console.log(`Unknown webhook event: ${payload.event}`)
+      console.log(`Unknown webhook event: ${payload.type}`)
   }
 
   // Always return 200 to acknowledge receipt
