@@ -281,9 +281,9 @@ export default function Map() {
 
   // Function to open report modal using geolocation or default location
   const openReportModal = useCallback(() => {
-    // If user searched for a location in the last 60 seconds, use that
+    // If user searched for a location in the last 30 seconds, use that
     const searchedLoc = searchedLocationRef.current
-    if (searchedLoc && Date.now() - searchedLoc.timestamp < 60000) {
+    if (searchedLoc && Date.now() - searchedLoc.timestamp < 30000) {
       window.dispatchEvent(new CustomEvent('mapFlyTo', { detail: { lat: searchedLoc.lat, lng: searchedLoc.lng } }))
       setCreatePostLocation({ lat: searchedLoc.lat, lng: searchedLoc.lng })
       searchedLocationRef.current = null // Clear after use
