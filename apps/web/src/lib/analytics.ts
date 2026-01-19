@@ -70,4 +70,9 @@ export const events = {
   PWA_INSTALL_CLICK: 'pwa_install_click',
   PWA_INSTALLED: 'pwa_installed',
   PWA_INSTALL_DISMISSED: 'pwa_install_dismissed',
+
+  // Contact
+  CONTACT_SUBMIT: 'contact_submit',
+  CONTACT_SUCCESS: 'contact_success',
+  CONTACT_ERROR: 'contact_error',
 }

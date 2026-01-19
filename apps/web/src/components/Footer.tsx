@@ -53,6 +53,12 @@ export default function Footer() {
             >
               Terms
             </Link>
+            <Link
+              href="/contact"
+              className="text-gray-400 hover:text-white transition-colors text-sm font-medium"
+            >
+              Contact
+            </Link>
             <InstallButton />
             <a
               href="https://github.com/profullstack/icemap.app"
