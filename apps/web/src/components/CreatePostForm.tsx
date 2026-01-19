@@ -24,10 +24,39 @@ export default function CreatePostForm({ lat, lng, onClose, onSuccess }: Props) 
   const [state, setState] = useState('')
   const [crossStreet, setCrossStreet] = useState('')
   const [media, setMedia] = useState<UploadedMedia[]>([])
+  const [links, setLinks] = useState<string[]>([''])
   const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  function updateLink(index: number, value: string) {
+    setLinks(prev => {
+      const next = [...prev]
+      next[index] = value
+      return next
+    })
+  }
+
+  function addLink() {
+    if (links.length < 3) {
+      setLinks(prev => [...prev, ''])
+    }
+  }
+
+  function removeLink(index: number) {
+    setLinks(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function isValidUrl(url: string): boolean {
+    if (!url.trim()) return true // Empty is OK
+    try {
+      new URL(url)
+      return true
+    } catch {
+      return false
+    }
+  }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files
@@ -81,9 +110,18 @@ export default function CreatePostForm({ lat, lng, onClose, onSuccess }: Props) 
     e.preventDefault()
     if (!summary.trim() || !incidentType || submitting) return
 
+    // Validate URLs
+    const validLinks = links.filter(l => l.trim()).map(l => l.trim())
+    for (const link of validLinks) {
+      if (!isValidUrl(link)) {
+        setError('Please enter valid URLs for all links')
+        return
+      }
+    }
+
     setSubmitting(true)
     setError(null)
-    track(events.POST_CREATE_SUBMIT, { incident_type: incidentType, has_media: media.length > 0 })
+    track(events.POST_CREATE_SUBMIT, { incident_type: incidentType, has_media: media.length > 0, has_links: validLinks.length > 0 })
 
     try {
       const res = await fetch('/api/posts', {
@@ -98,6 +136,7 @@ export default function CreatePostForm({ lat, lng, onClose, onSuccess }: Props) 
           state: state.trim() || undefined,
           cross_street: crossStreet.trim() || undefined,
           media_ids: media.map((m) => m.id),
+          links: validLinks.length > 0 ? validLinks.map(url => ({ url })) : undefined,
         }),
       })
 
@@ -290,6 +329,58 @@ export default function CreatePostForm({ lat, lng, onClose, onSuccess }: Props) 
                 </div>
               )}
               <p className="text-gray-500 text-xs mt-2">{media.length}/5 files</p>
+            </div>
+
+            {/* Links section */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  News / Social Links
+                </div>
+              </label>
+              <div className="space-y-2">
+                {links.map((link, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="url"
+                      value={link}
+                      onChange={(e) => updateLink(index, e.target.value)}
+                      placeholder="https://twitter.com/... or news article URL"
+                      className={`flex-1 px-4 py-3 bg-white/5 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all ${
+                        link && !isValidUrl(link) ? 'border-rose-500/50' : 'border-white/10'
+                      }`}
+                    />
+                    {links.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeLink(index)}
+                        className="p-3 rounded-xl bg-white/5 hover:bg-rose-500/20 text-gray-400 hover:text-rose-400 border border-white/10 hover:border-rose-500/30 transition-all"
+                        aria-label="Remove link"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {links.length < 3 && (
+                <button
+                  type="button"
+                  onClick={addLink}
+                  className="mt-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add another link
+                </button>
+              )}
+              <p className="text-gray-500 text-xs mt-2">Add news articles or social media posts ({links.filter(l => l.trim()).length}/3)</p>
             </div>
 
             {error && (

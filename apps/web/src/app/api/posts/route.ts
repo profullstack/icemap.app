@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
     state?: string
     cross_street?: string
     media_ids?: string[]
+    links?: { url: string; title?: string }[]
   }
 
   try {
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const { lat, lng, summary, incident_type, city, state, cross_street, media_ids } = body
+  const { lat, lng, summary, incident_type, city, state, cross_street, media_ids, links } = body
 
   // Validate required fields
   if (!lat || !lng || !summary || !incident_type) {
@@ -114,6 +115,28 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  // Validate links
+  if (links && links.length > 3) {
+    return NextResponse.json(
+      { error: 'Maximum 3 links allowed' },
+      { status: 400 }
+    )
+  }
+
+  // Validate link URLs
+  if (links) {
+    for (const link of links) {
+      try {
+        new URL(link.url)
+      } catch {
+        return NextResponse.json(
+          { error: 'Invalid URL in links' },
+          { status: 400 }
+        )
+      }
+    }
+  }
+
   // Create the post
   const { data: post, error } = await supabase
     .from('posts')
@@ -125,6 +148,7 @@ export async function POST(request: NextRequest) {
       summary,
       incident_type,
       fingerprint,
+      links: links || [],
     })
     .select('id')
     .single()

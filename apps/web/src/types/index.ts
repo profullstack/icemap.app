@@ -1,3 +1,8 @@
+export interface PostLink {
+  url: string
+  title?: string
+}
+
 export interface Post {
   id: string
   location: {
@@ -15,6 +20,7 @@ export interface Post {
   vote_count?: number
   comment_count?: number
   media?: Media[]
+  links?: PostLink[]
 }
 
 export type IncidentType =

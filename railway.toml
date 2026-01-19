@@ -1,0 +1,17 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "apps/web/Dockerfile"
+
+# Pass environment variables as build arguments for Next.js
+buildCommand = ""
+
+[build.args]
+NEXT_PUBLIC_SUPABASE_URL = "${{NEXT_PUBLIC_SUPABASE_URL}}"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "${{NEXT_PUBLIC_SUPABASE_ANON_KEY}}"
+NEXT_PUBLIC_DATAFAST_ID = "${{NEXT_PUBLIC_DATAFAST_ID}}"
+
+[deploy]
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3

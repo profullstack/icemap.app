@@ -1,5 +1,5 @@
 # Stage 1: Dependencies
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 WORKDIR /app
 
 # Install pnpm
@@ -14,11 +14,21 @@ COPY packages/supabase/package.json ./packages/supabase/
 RUN pnpm install --frozen-lockfile
 
 # Stage 2: Builder
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Build-time arguments (passed from Railway or CI)
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_DATAFAST_ID
+
+# Make build args available as env vars during build
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+ENV NEXT_PUBLIC_DATAFAST_ID=$NEXT_PUBLIC_DATAFAST_ID
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
@@ -32,7 +42,7 @@ COPY . .
 RUN pnpm --filter @icemap/web build
 
 # Stage 3: Runner
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 WORKDIR /app
 
 # Install FFmpeg and ImageMagick for media processing
@@ -51,9 +61,15 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/
 
 USER nextjs
 
-EXPOSE 3000
+# Railway sets PORT dynamically, default to 8080
+EXPOSE 8080
 
-ENV PORT=3000
+ENV PORT=8080
 ENV HOSTNAME="0.0.0.0"
+
+# Runtime environment variables (set by Railway)
+# SUPABASE_URL - Server-side Supabase URL
+# SUPABASE_SERVICE_ROLE_KEY - Server-side service key
+# NEXT_PUBLIC_* vars are baked in at build time
 
 CMD ["node", "apps/web/server.js"]
