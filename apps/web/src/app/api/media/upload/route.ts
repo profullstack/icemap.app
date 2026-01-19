@@ -147,8 +147,29 @@ async function processImage(inputPath: string, outputPath: string) {
 
 async function processVideo(inputPath: string, outputPath: string) {
   // Use FFmpeg to convert to web-safe H.264 MP4
-  // -movflags +faststart moves moov atom to beginning for web streaming
-  const cmd = `ffmpeg -i "${inputPath}" -c:v libx264 -preset fast -crf 23 -b:v ${VIDEO_BITRATE} -vf "scale='min(${VIDEO_MAX_WIDTH},iw)':-2" -c:a aac -b:a 128k -movflags +faststart -y "${outputPath}"`
+  // Safari/iOS compatibility requires:
+  // - profile main/baseline with level 4.0
+  // - yuv420p pixel format (critical for Safari)
+  // - even dimensions (divisible by 2)
+  // - faststart for web streaming
+  const scaleFilter = `scale='min(${VIDEO_MAX_WIDTH},iw)':'min(${VIDEO_MAX_HEIGHT},ih)':force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2`
+  const cmd = [
+    'ffmpeg -i', `"${inputPath}"`,
+    '-c:v libx264',
+    '-profile:v main',
+    '-level 4.0',
+    '-pix_fmt yuv420p',
+    '-preset fast',
+    '-crf 23',
+    `-maxrate ${VIDEO_BITRATE}`,
+    '-bufsize 2M',
+    `-vf "${scaleFilter}"`,
+    '-c:a aac',
+    '-b:a 128k',
+    '-ac 2',
+    '-movflags +faststart',
+    '-y', `"${outputPath}"`
+  ].join(' ')
   try {
     const { stdout, stderr } = await execAsync(cmd, { timeout: 300000 })
     if (stderr) console.log('FFmpeg stderr:', stderr)
