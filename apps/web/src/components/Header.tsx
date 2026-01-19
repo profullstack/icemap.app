@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { track, events } from '@/lib/analytics'
+import InstallButton from './InstallButton'
 
 export default function Header() {
   const pathname = usePathname()
@@ -147,6 +148,9 @@ export default function Header() {
           >
             About
           </Link>
+          <div className="hidden sm:block">
+            <InstallButton />
+          </div>
         </nav>
       </div>
     </header>

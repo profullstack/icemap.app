@@ -14,7 +14,6 @@ export default function InstallButton() {
   const [isIOS, setIsIOS] = useState(false)
   const [isStandalone, setIsStandalone] = useState(false)
   const [showIOSModal, setShowIOSModal] = useState(false)
-  const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
     // Check if already installed (standalone mode)
@@ -25,12 +24,6 @@ export default function InstallButton() {
     // Check if iOS
     const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as Window & { MSStream?: unknown }).MSStream
     setIsIOS(ios)
-
-    // Check if user previously dismissed
-    const wasDismissed = localStorage.getItem('pwa-install-dismissed')
-    if (wasDismissed) {
-      setDismissed(true)
-    }
 
     // Listen for install prompt (Chrome, Edge, etc.)
     const handleBeforeInstall = (e: Event) => {
@@ -59,38 +52,26 @@ export default function InstallButton() {
       return
     }
 
-    if (!installPrompt) return
+    if (installPrompt) {
+      track(events.PWA_INSTALL_CLICK, { platform: 'android' })
 
-    track(events.PWA_INSTALL_CLICK, { platform: 'android' })
+      try {
+        await installPrompt.prompt()
+        const { outcome } = await installPrompt.userChoice
 
-    try {
-      await installPrompt.prompt()
-      const { outcome } = await installPrompt.userChoice
-
-      if (outcome === 'accepted') {
-        setInstallPrompt(null)
-      } else {
-        // User dismissed, remember for this session
-        track(events.PWA_INSTALL_DISMISSED)
+        if (outcome === 'accepted') {
+          setInstallPrompt(null)
+        } else {
+          track(events.PWA_INSTALL_DISMISSED)
+        }
+      } catch (error) {
+        console.error('Install prompt error:', error)
       }
-    } catch (error) {
-      console.error('Install prompt error:', error)
     }
   }
 
-  function handleDismiss() {
-    setDismissed(true)
-    localStorage.setItem('pwa-install-dismissed', 'true')
-    track(events.PWA_INSTALL_DISMISSED)
-  }
-
-  // Don't show if already installed, dismissed, or not installable
-  if (isStandalone || dismissed) {
-    return null
-  }
-
-  // Show for iOS or when install prompt is available
-  if (!isIOS && !installPrompt) {
+  // Don't show if already installed
+  if (isStandalone) {
     return null
   }
 
@@ -98,21 +79,21 @@ export default function InstallButton() {
     <>
       <button
         onClick={handleInstall}
-        className="group transition-opacity hover:opacity-80"
+        className="transition-opacity hover:opacity-80"
         aria-label="Install App"
       >
         <Image
           src="/PWA-dark-en.svg"
           alt="Install as Progressive Web App"
-          width={160}
-          height={48}
-          className="h-10 w-auto"
+          width={120}
+          height={36}
+          className="h-8 w-auto"
         />
       </button>
 
       {/* iOS Instructions Modal */}
       {showIOSModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+        <div className="fixed inset-0 z-[1001] flex items-center justify-center bg-black/60 p-4">
           <div className="glass rounded-2xl p-6 max-w-sm w-full border border-white/10">
             <div className="text-center">
               <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center mx-auto mb-4">
@@ -164,23 +145,12 @@ export default function InstallButton() {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowIOSModal(false)
-                  handleDismiss()
-                }}
-                className="flex-1 px-4 py-2.5 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors text-sm font-medium"
-              >
-                Maybe Later
-              </button>
-              <button
-                onClick={() => setShowIOSModal(false)}
-                className="flex-1 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/25 transition-all text-sm font-medium"
-              >
-                Got It
-              </button>
-            </div>
+            <button
+              onClick={() => setShowIOSModal(false)}
+              className="w-full px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/25 transition-all text-sm font-medium"
+            >
+              Got It
+            </button>
           </div>
         </div>
       )}
