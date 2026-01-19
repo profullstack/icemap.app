@@ -9,6 +9,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import type { Post } from '@/types'
 import CreatePostForm from './CreatePostForm'
+import CitySearch from './CitySearch'
 import { track, events } from '@/lib/analytics'
 
 const DEFAULT_CENTER: [number, number] = [39.8283, -98.5795] // US center
@@ -387,11 +388,12 @@ export default function Map() {
         />
         <MapContent posts={filteredPosts} onBoundsChange={fetchPosts} onMapClick={handleMapClick} />
         <LocateButton />
+        <CitySearch />
       </MapContainer>
 
       {/* Loading indicator */}
       {loading && (
-        <div className="absolute top-4 right-4 z-[1000] glass rounded-xl px-4 py-2.5 flex items-center gap-2">
+        <div className="absolute top-16 right-4 z-[1000] glass rounded-xl px-4 py-2.5 flex items-center gap-2">
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-400 border-t-transparent" />
           <span className="text-white/80 text-sm font-medium">Loading...</span>
         </div>
