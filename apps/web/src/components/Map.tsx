@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -250,6 +251,56 @@ export default function Map() {
   const [showFilters, setShowFilters] = useState(false)
   const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const boundsRef = useRef<L.LatLngBounds | null>(null)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const hasHandledReportParam = useRef(false)
+
+  // Function to open report modal using geolocation or default location
+  const openReportModal = useCallback(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCreatePostLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          })
+        },
+        () => {
+          // Fallback to map center or default
+          const center = boundsRef.current?.getCenter()
+          setCreatePostLocation({
+            lat: center?.lat ?? DEFAULT_CENTER[0],
+            lng: center?.lng ?? DEFAULT_CENTER[1],
+          })
+        },
+        { timeout: 5000, maximumAge: 60000 }
+      )
+    } else {
+      // No geolocation, use map center
+      const center = boundsRef.current?.getCenter()
+      setCreatePostLocation({
+        lat: center?.lat ?? DEFAULT_CENTER[0],
+        lng: center?.lng ?? DEFAULT_CENTER[1],
+      })
+    }
+  }, [])
+
+  // Listen for custom event from Header
+  useEffect(() => {
+    const handleOpenReportModal = () => openReportModal()
+    window.addEventListener('openReportModal', handleOpenReportModal)
+    return () => window.removeEventListener('openReportModal', handleOpenReportModal)
+  }, [openReportModal])
+
+  // Handle ?report=1 URL parameter
+  useEffect(() => {
+    if (searchParams.get('report') === '1' && !hasHandledReportParam.current) {
+      hasHandledReportParam.current = true
+      openReportModal()
+      // Clear the URL parameter
+      router.replace('/', { scroll: false })
+    }
+  }, [searchParams, openReportModal, router])
 
   const toggleFilter = (type: string) => {
     track(events.MAP_FILTER, { type, action: activeFilters.has(type) ? 'remove' : 'add' })
