@@ -101,7 +101,7 @@ export default function ReportButton({ postId }: Props) {
               <form onSubmit={handleSubmit}>
                 <h3 className="text-lg font-medium text-white mb-4">Report Post</h3>
                 <p className="text-gray-400 text-sm mb-4">
-                  Please describe why you're reporting this post. Our team will review it.
+                  Please describe why you&apos;re reporting this post. Our team will review it.
                 </p>
                 <textarea
                   value={reason}

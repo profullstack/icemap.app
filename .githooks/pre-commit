@@ -1,0 +1,25 @@
+#!/bin/sh
+# Pre-commit hook: runs lint, type check, build, and tests
+# Catches issues before they fail on Railway
+
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# Run from repo root
+cd "$(git rev-parse --show-toplevel)"
+
+echo ""
+echo "📝 Running lint..."
+pnpm lint
+
+echo ""
+echo "🔨 Running build..."
+pnpm build
+
+echo ""
+echo "🧪 Running tests..."
+pnpm test run
+
+echo ""
+echo "✅ All checks passed!"

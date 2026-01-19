@@ -8,7 +8,6 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '500mb',
     },
     proxyClientMaxBodySize: '500mb',
-    middlewareClientMaxBodySize: '500mb',
   },
 }
 

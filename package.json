@@ -7,7 +7,8 @@
     "build": "pnpm --filter @icemap/web build",
     "start": "pnpm --filter @icemap/web start",
     "lint": "pnpm --filter @icemap/web lint",
-    "test": "pnpm --filter @icemap/web test"
+    "test": "pnpm --filter @icemap/web test",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "engines": {
     "node": ">=24.0.0",

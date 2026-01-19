@@ -127,7 +127,7 @@ export default function InstallButton() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-white text-sm font-medium">2. Tap "Add to Home Screen"</p>
+                  <p className="text-white text-sm font-medium">2. Tap &quot;Add to Home Screen&quot;</p>
                   <p className="text-gray-500 text-xs">Scroll down if needed</p>
                 </div>
               </div>
@@ -139,7 +139,7 @@ export default function InstallButton() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-white text-sm font-medium">3. Tap "Add"</p>
+                  <p className="text-white text-sm font-medium">3. Tap &quot;Add&quot;</p>
                   <p className="text-gray-500 text-xs">In the top right corner</p>
                 </div>
               </div>

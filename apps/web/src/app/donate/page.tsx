@@ -39,7 +39,7 @@ export default function DonatePage() {
                 Secure & Anonymous
               </h3>
               <p className="text-gray-400 text-sm">
-                Payments are processed securely through CoinPayPortal. We don't collect any personal
+                Payments are processed securely through CoinPayPortal. We don&apos;t collect any personal
                 information with your donation.
               </p>
             </div>
