@@ -58,6 +58,7 @@ export const events = {
   // Navigation
   NAV_FAVORITES: 'nav_favorites',
   NAV_BACK_TO_MAP: 'nav_back_to_map',
+  NAV_DONATE: 'nav_donate',
 
   // Donations
   DONATE_START: 'donate_start',
