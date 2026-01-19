@@ -94,8 +94,12 @@ export async function POST(request: NextRequest) {
 
   const { lat, lng, summary, incident_type, city, state, cross_street, media_ids, links } = body
 
-  // Validate required fields
-  if (!lat || !lng || !summary || !incident_type) {
+  // Debug log incoming data
+  console.log('POST /api/posts - received:', { lat, lng, latType: typeof lat, lngType: typeof lng, summary: summary?.slice(0, 50) })
+
+  // Validate required fields - use explicit checks to allow 0 coordinates
+  if (typeof lat !== 'number' || typeof lng !== 'number' || !summary || !incident_type) {
+    console.log('POST /api/posts - validation failed:', { lat, lng, summary: !!summary, incident_type: !!incident_type })
     return NextResponse.json(
       { error: 'Missing required fields: lat, lng, summary, incident_type' },
       { status: 400 }
@@ -104,6 +108,7 @@ export async function POST(request: NextRequest) {
 
   // Validate coordinates
   if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    console.log('POST /api/posts - invalid coordinates:', { lat, lng })
     return NextResponse.json({ error: 'Invalid coordinates' }, { status: 400 })
   }
 
@@ -138,10 +143,13 @@ export async function POST(request: NextRequest) {
   }
 
   // Create the post
+  const locationWKT = `POINT(${lng} ${lat})`
+  console.log('POST /api/posts - inserting with location:', locationWKT)
+
   const { data: post, error } = await supabase
     .from('posts')
     .insert({
-      location: `POINT(${lng} ${lat})`,
+      location: locationWKT,
       city,
       state,
       cross_street,
@@ -150,13 +158,15 @@ export async function POST(request: NextRequest) {
       fingerprint,
       links: links || [],
     })
-    .select('id')
+    .select('id, location')
     .single()
 
   if (error) {
     console.error('Error creating post:', error)
     return NextResponse.json({ error: 'Failed to create post' }, { status: 500 })
   }
+
+  console.log('POST /api/posts - created post:', post)
 
   // Link media to post if provided
   if (media_ids && media_ids.length > 0) {
