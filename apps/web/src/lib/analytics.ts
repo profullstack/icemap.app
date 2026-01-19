@@ -63,4 +63,9 @@ export const events = {
   DONATE_START: 'donate_start',
   DONATE_CREATED: 'donate_created',
   DONATE_ERROR: 'donate_error',
+
+  // PWA
+  PWA_INSTALL_CLICK: 'pwa_install_click',
+  PWA_INSTALLED: 'pwa_installed',
+  PWA_INSTALL_DISMISSED: 'pwa_install_dismissed',
 }

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import InstallButton from './InstallButton'
 
 export default function Footer() {
   return (
@@ -52,6 +53,7 @@ export default function Footer() {
             >
               Terms
             </Link>
+            <InstallButton />
             <a
               href="https://github.com/profullstack/icemap.app"
               target="_blank"
