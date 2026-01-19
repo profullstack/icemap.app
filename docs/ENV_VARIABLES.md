@@ -52,8 +52,8 @@ RATE_LIMIT_WINDOW_SECONDS=3600
 # -------------------------------------------
 # Media Processing Configuration
 # -------------------------------------------
-# Maximum file size in bytes (default: 50MB)
-MAX_FILE_SIZE_BYTES=52428800
+# Maximum file size in bytes (default: 500MB)
+MAX_FILE_SIZE_BYTES=524288000
 
 # Maximum number of media items per post
 MAX_MEDIA_PER_POST=5
@@ -135,7 +135,7 @@ npx web-push generate-vapid-keys
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `MAX_FILE_SIZE_BYTES` | No | Maximum upload file size (default: 50MB) |
+| `MAX_FILE_SIZE_BYTES` | No | Maximum upload file size (default: 500MB) |
 | `MAX_MEDIA_PER_POST` | No | Maximum media items per post (default: 5) |
 | `VIDEO_BITRATE` | No | FFmpeg video bitrate (default: 1000k) |
 | `VIDEO_MAX_WIDTH` | No | Maximum video width (default: 1280) |

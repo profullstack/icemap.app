@@ -7,7 +7,7 @@ VALUES (
   'media',
   'media',
   true,
-  52428800, -- 50MB max file size
+  524288000, -- 500MB max file size
   ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm']
 )
 ON CONFLICT (id) DO UPDATE SET
