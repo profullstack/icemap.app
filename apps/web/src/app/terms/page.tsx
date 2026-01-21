@@ -28,7 +28,7 @@ export default function TermsPage() {
               <p className="text-gray-300">
                 icemap is a free, anonymous incident reporting platform. Users can report
                 incidents, view reports from others, and interact through votes and comments.
-                All posts automatically expire and are deleted after 8 hours.
+                All posts automatically expire and are deleted after 7 days.
               </p>
             </section>
 
@@ -72,7 +72,7 @@ export default function TermsPage() {
               <p className="text-gray-300">
                 By posting content on icemap, you grant us a non-exclusive, royalty-free
                 license to display and distribute that content through the service. You
-                retain ownership of your content. Content is automatically deleted after 8 hours.
+                retain ownership of your content. Content is automatically deleted after 7 days.
               </p>
             </section>
 

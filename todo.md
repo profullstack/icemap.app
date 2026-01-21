@@ -94,7 +94,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for full details.
 - ⭐ Favorite posts with dedicated favorites page
 - 🚩 Report posts (emails admin@icemap.app)
 - 🔔 Push notifications for area alerts
-- 🕐 Auto-expiring posts (8 hours)
+- 🕐 Auto-expiring posts (7 days)
 - 🚫 No authentication - completely anonymous
 - 📱 PWA - installable, works offline
 - 🛡️ Rate limiting - 1 post per hour per user fingerprint

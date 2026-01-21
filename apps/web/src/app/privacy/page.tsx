@@ -56,7 +56,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-xl font-semibold text-white mb-3">Data retention</h2>
               <p className="text-gray-300">
-                All posts and associated media are automatically deleted after 8 hours.
+                All posts and associated media are automatically deleted after 7 days.
                 Your anonymous fingerprint and interaction data (votes, favorites) are retained
                 only as long as the associated posts exist.
               </p>
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
               <h2 className="text-xl font-semibold text-white mb-3">Your rights</h2>
               <p className="text-gray-300">
                 Since we don&apos;t collect personal information, there is no personal data to
-                access, modify, or delete. Posts automatically expire after 8 hours.
+                access, modify, or delete. Posts automatically expire after 7 days.
               </p>
             </section>
 

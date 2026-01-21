@@ -6,7 +6,7 @@ import Header from '@/components/Header'
 
 export const metadata: Metadata = {
   title: 'icemap - Anonymous Incident Reporting',
-  description: 'Anonymous, real-time incident reporting on a map. No accounts. No tracking. Posts auto-delete after 8 hours.',
+  description: 'Anonymous, real-time incident reporting on a map. No accounts. No tracking. Posts auto-delete after 7 days.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,

@@ -46,7 +46,7 @@ export default function AboutPage() {
           <ul className="space-y-2 text-gray-300 list-disc list-inside">
             <li>No account or login required</li>
             <li>No personal information collected</li>
-            <li>Posts automatically delete after 8 hours</li>
+            <li>Posts automatically delete after 7 days</li>
             <li>Your identity is protected by a randomized fingerprint</li>
           </ul>
 

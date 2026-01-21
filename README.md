@@ -1,6 +1,6 @@
 # 🗺️ icemap.app
 
-> Anonymous, real-time incident reporting on a map. No accounts. No tracking. Posts auto-delete after 8 hours.
+> Anonymous, real-time incident reporting on a map. No accounts. No tracking. Posts auto-delete after 7 days.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black)](https://nextjs.org/)
@@ -9,7 +9,7 @@
 
 ## What is icemap?
 
-icemap is a privacy-first PWA for reporting local incidents. See something happening? Drop a pin, add photos/videos, and let your community know. All posts automatically expire after 8 hours to prevent stale information.
+icemap is a privacy-first PWA for reporting local incidents. See something happening? Drop a pin, add photos/videos, and let your community know. All posts automatically expire after 7 days to prevent stale information.
 
 **No sign-up required. Completely anonymous.**
 
@@ -23,7 +23,7 @@ icemap is a privacy-first PWA for reporting local incidents. See something happe
 - ⭐ **Favorites** - Save posts for quick access
 - 🚩 **Report** - Flag inappropriate content
 - 🔔 **Area Alerts** - Get notified about new incidents nearby
-- 🕐 **Auto-Expiring** - All posts deleted after 8 hours
+- 🕐 **Auto-Expiring** - All posts deleted after 7 days
 - 📱 **PWA** - Install on any device, works offline
 
 ## 🛠️ Tech Stack
@@ -63,7 +63,7 @@ pnpm dev
 
 - **No accounts** - No email, no password, no tracking
 - **Anonymous IDs** - Random identifiers like `anon_x7k2m9`
-- **Auto-deletion** - Posts expire after 8 hours
+- **Auto-deletion** - Posts expire after 7 days
 - **Server-side only** - All database calls happen on the server
 
 ## 📄 License

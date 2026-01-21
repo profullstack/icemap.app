@@ -2,7 +2,7 @@
 
 ## Overview
 
-icemap.app is an anonymous, location-based incident reporting PWA that allows users to report and view incidents on a map. Posts auto-delete after 8 hours to avoid false positives. No authentication required.
+icemap.app is an anonymous, location-based incident reporting PWA that allows users to report and view incidents on a map. Posts auto-delete after 7 days to avoid false positives. No authentication required.
 
 ## Tech Stack
 
@@ -58,7 +58,7 @@ CREATE TABLE posts (
   incident_type TEXT NOT NULL,
   fingerprint TEXT NOT NULL,  -- For rate limiting
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  expires_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '8 hours'
+  expires_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '7 days'
 );
 
 -- Spatial index for bounding box queries
@@ -276,7 +276,7 @@ sequenceDiagram
     alt Rate limited
         A-->>C: 429 Too Many Requests
     else Allowed
-        A->>D: Insert post with 8hr expiry
+        A->>D: Insert post with 7-day expiry
         A->>D: Update rate_limits
         A->>D: Find matching subscriptions
         A->>A: Send push notifications
@@ -352,7 +352,7 @@ RUN apk add --no-cache ffmpeg imagemagick
 1. **No Authentication**: All posts are anonymous, no user accounts
 2. **Server-Side Only**: Supabase calls NEVER happen on client
 3. **Rate Limiting**: 1 post per hour per fingerprint prevents spam
-4. **Auto-Deletion**: 8-hour TTL prevents stale/false information
+4. **Auto-Deletion**: 7-day TTL prevents stale/false information
 5. **Input Validation**: All inputs sanitized server-side
 6. **CORS**: Strict CORS policy on API routes
 7. **File Validation**: Media files validated for type and size before processing

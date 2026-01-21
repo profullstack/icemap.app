@@ -71,8 +71,8 @@ IMAGE_MAX_HEIGHT=1080
 # -------------------------------------------
 # Post Configuration
 # -------------------------------------------
-# Time in hours before posts are auto-deleted (default: 8)
-POST_TTL_HOURS=8
+# Time in hours before posts are auto-deleted (default: 168 = 7 days)
+POST_TTL_HOURS=168
 
 # -------------------------------------------
 # Admin Configuration
@@ -148,4 +148,4 @@ npx web-push generate-vapid-keys
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `POST_TTL_HOURS` | No | Hours before posts auto-delete (default: 8) |
+| `POST_TTL_HOURS` | No | Hours before posts auto-delete (default: 168 = 7 days) |

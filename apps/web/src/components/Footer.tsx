@@ -88,7 +88,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-gray-500 text-xs">Posts auto-delete after 8 hours</span>
+              <span className="text-gray-500 text-xs">Posts auto-delete after 7 days</span>
             </div>
             <p className="text-gray-600 text-xs">
               &copy; {new Date().getFullYear()}{' '}
