@@ -11,6 +11,7 @@ import MediaGallery from './MediaGallery'
 import AdminDeleteButton from './AdminDeleteButton'
 import { useAdmin } from '@/hooks/useAdmin'
 import { track, events } from '@/lib/analytics'
+import { getTimeAgo, getTimeUntil } from '@/lib/time'
 
 interface PostWithDetails extends Post {
   media: Media[]
@@ -180,23 +181,4 @@ export default function PostDetail({ postId }: Props) {
       />
     </div>
   )
-}
-
-function getTimeAgo(date: Date): string {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
-  if (seconds < 60) return 'Just now'
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  return `${Math.floor(hours / 24)}d ago`
-}
-
-function getTimeUntil(date: Date): string {
-  const seconds = Math.floor((date.getTime() - Date.now()) / 1000)
-  if (seconds < 60) return 'in less than a minute'
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `in ${minutes}m`
-  const hours = Math.floor(minutes / 60)
-  return `in ${hours}h ${minutes % 60}m`
 }
