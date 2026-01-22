@@ -1,9 +1,13 @@
-#!/usr/bin/env npx tsx
+#!/usr/bin/env -S npx tsx
 
 import { createClient } from '@supabase/supabase-js'
-import bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt'
 import { config } from 'dotenv'
-import { resolve } from 'path'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 // Load environment variables from apps/web/.env.local or root .env
 config({ path: resolve(__dirname, '../apps/web/.env.local') })
