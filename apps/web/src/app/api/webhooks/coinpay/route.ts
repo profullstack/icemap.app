@@ -10,9 +10,16 @@ interface WebhookPayload {
     amount_usd: string
     currency: string
     status: string
+    payment_address?: string
     confirmations?: number
     tx_hash?: string
+    merchant_tx_hash?: string
     message?: string
+    metadata?: {
+      order_id?: string
+      customer_email?: string
+      [key: string]: string | undefined
+    }
   }
   created_at: string
   business_id: string
@@ -25,16 +32,25 @@ function verifySignature(
 ): boolean {
   try {
     // Signature format: t=timestamp,v1=hash
-    const parts = signature.split(',')
-    const timestampPart = parts.find((p) => p.startsWith('t='))
-    const hashPart = parts.find((p) => p.startsWith('v1='))
+    const parts: Record<string, string> = {}
+    for (const part of signature.split(',')) {
+      const [key, value] = part.split('=')
+      parts[key] = value
+    }
 
-    if (!timestampPart || !hashPart) {
+    const timestamp = parts.t
+    const expectedHash = parts.v1
+
+    if (!timestamp || !expectedHash) {
       return false
     }
 
-    const timestamp = timestampPart.slice(2)
-    const expectedHash = hashPart.slice(3)
+    // Check timestamp (reject if older than 5 minutes)
+    const age = Math.floor(Date.now() / 1000) - parseInt(timestamp)
+    if (Math.abs(age) > 300) {
+      console.error('Webhook timestamp too old or in future:', { age, timestamp })
+      return false
+    }
 
     // Compute expected signature
     const signedPayload = `${timestamp}.${payload}`
@@ -43,10 +59,10 @@ function verifySignature(
       .update(signedPayload)
       .digest('hex')
 
-    // Timing-safe comparison
+    // Timing-safe comparison using hex encoding
     return crypto.timingSafeEqual(
-      Buffer.from(computedHash),
-      Buffer.from(expectedHash)
+      Buffer.from(expectedHash, 'hex'),
+      Buffer.from(computedHash, 'hex')
     )
   } catch {
     return false
@@ -101,7 +117,8 @@ export async function POST(request: NextRequest) {
     case 'payment.forwarded':
       // Funds have been forwarded to merchant wallet
       console.log(
-        `Donation forwarded: $${payload.data.amount_usd} in ${payload.data.currency}`
+        `Donation forwarded: $${payload.data.amount_usd} in ${payload.data.currency}`,
+        payload.data.merchant_tx_hash ? `tx: ${payload.data.merchant_tx_hash}` : ''
       )
       break
 
