@@ -8,6 +8,8 @@ import ReportButton from './ReportButton'
 import ShareButton from './ShareButton'
 import CommentsSection from './CommentsSection'
 import MediaGallery from './MediaGallery'
+import AdminDeleteButton from './AdminDeleteButton'
+import { useAdmin } from '@/hooks/useAdmin'
 import { track, events } from '@/lib/analytics'
 
 interface PostWithDetails extends Post {
@@ -27,6 +29,7 @@ export default function PostDetail({ postId }: Props) {
   const [post, setPost] = useState<PostWithDetails | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { isAdmin } = useAdmin()
 
   useEffect(() => {
     fetchPost()
@@ -166,6 +169,7 @@ export default function PostDetail({ postId }: Props) {
         />
         <ShareButton postId={post.id} />
         <ReportButton postId={post.id} />
+        {isAdmin && <AdminDeleteButton postId={post.id} />}
       </div>
 
       {/* Comments */}
