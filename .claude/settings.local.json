@@ -39,7 +39,6 @@
       "Bash(pnpm type-check:*)",
       "Bash(pnpm tsc:*)",
       "Bash(pnpm test:coverage:*)",
-      "Bash(*)",
       "Bash(pnpm list:*)",
       "Bash(find:*)",
       "Bash(supabase db push:*)",
@@ -71,7 +70,7 @@
       "Bash(git stash:*)",
       "Bash(node --experimental-strip-types --check:*)",
       "Bash(node --experimental-strip-types:*)",
-      "Bash(pnpm why:*)",
+      "Bash(pnpm why:*)"
     ],
     "deny": [
       "Bash(npm *)",
