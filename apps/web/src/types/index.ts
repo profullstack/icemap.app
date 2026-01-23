@@ -32,6 +32,7 @@ export type IncidentType =
   | 'weather_event'
   | 'construction'
   | 'public_safety'
+  | 'protest_riot'
   | 'other'
 
 export const INCIDENT_TYPES: { value: IncidentType; label: string; icon: string }[] = [
@@ -43,6 +44,7 @@ export const INCIDENT_TYPES: { value: IncidentType; label: string; icon: string 
   { value: 'weather_event', label: 'Weather Event', icon: 'cloud' },
   { value: 'construction', label: 'Construction', icon: 'cone' },
   { value: 'public_safety', label: 'Public Safety', icon: 'users' },
+  { value: 'protest_riot', label: 'Protests or Riots', icon: 'megaphone' },
   { value: 'other', label: 'Other', icon: 'more' },
 ]
 
