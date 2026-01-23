@@ -421,6 +421,9 @@ export default function CreatePostForm({ lat, lng, onClose, onSuccess }: Props) 
               </svg>
               Anonymous · Auto-deletes after 7 days
             </p>
+            <p className="text-gray-600 text-xs text-center mt-1">
+              Spam will be removed. Repeat offenders may be banned.
+            </p>
           </form>
         </div>
       </div>
