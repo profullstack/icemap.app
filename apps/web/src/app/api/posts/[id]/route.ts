@@ -10,14 +10,12 @@ export async function GET(
   const { id } = await params
   const fingerprint = await getFingerprint()
 
-  // Get the post
-  const { data: post, error: postError } = await supabase
-    .from('posts')
-    .select('*')
-    .eq('id', id)
-    .gte('expires_at', new Date().toISOString())
-    .single()
+  // Get the post using RPC to properly format the geography column
+  const { data: posts, error: postError } = await supabase.rpc('get_post_by_id', {
+    p_id: id,
+  })
 
+  const post = posts?.[0]
   if (postError || !post) {
     return NextResponse.json({ error: 'Post not found' }, { status: 404 })
   }
