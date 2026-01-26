@@ -58,7 +58,7 @@ export async function GET(
     .single()
 
   // Parse location from PostGIS format
-  let location = { lat: 0, lng: 0 }
+  let location: { lat: number; lng: number } | null = null
   if (post.location) {
     // PostGIS returns POINT(lng lat) format
     const match = post.location.match(/POINT\(([^ ]+) ([^)]+)\)/)
@@ -70,7 +70,7 @@ export async function GET(
   return NextResponse.json({
     post: {
       ...post,
-      location,
+      ...(location && { location }),
       media: media || [],
       comments: comments || [],
       vote_count: voteCount || 0,
