@@ -26,34 +26,26 @@ interface Props {
 
 export default function PostLocationMap({ lat, lng, incidentType }: Props) {
   const mapRef = useRef<HTMLDivElement>(null)
-  const mapInstanceRef = useRef<L.Map | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    console.log('PostLocationMap useEffect:', { mapRef: !!mapRef.current, mapInstance: !!mapInstanceRef.current, lat, lng })
+    if (!mapRef.current) return
 
-    if (!mapRef.current || mapInstanceRef.current) {
-      console.log('PostLocationMap: early return', { hasRef: !!mapRef.current, hasInstance: !!mapInstanceRef.current })
-      return
-    }
+    let map: L.Map | null = null
 
     try {
       // Initialize map
-      const map = L.map(mapRef.current, {
+      map = L.map(mapRef.current, {
         center: [lat, lng],
-        zoom: 11,
-        zoomControl: false,
+        zoom: 14,
+        zoomControl: true,
         attributionControl: false,
         dragging: true,
         touchZoom: true,
-        scrollWheelZoom: false,
+        scrollWheelZoom: true,
         doubleClickZoom: true,
       })
-
-      mapInstanceRef.current = map
-      setInitialized(true)
-      console.log('PostLocationMap: map initialized successfully')
 
       // Add tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -77,15 +69,17 @@ export default function PostLocationMap({ lat, lng, incidentType }: Props) {
       })
 
       L.marker([lat, lng], { icon }).addTo(map)
-
-      // Cleanup
-      return () => {
-        map.remove()
-        mapInstanceRef.current = null
-      }
+      setInitialized(true)
     } catch (err) {
       console.error('PostLocationMap error:', err)
       setError(err instanceof Error ? err.message : 'Failed to load map')
+    }
+
+    // Cleanup
+    return () => {
+      if (map) {
+        map.remove()
+      }
     }
   }, [lat, lng, incidentType])
 
