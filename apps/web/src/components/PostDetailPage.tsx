@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, memo } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import type { Post, Comment, Media } from '@/types'
@@ -24,6 +24,25 @@ const PostLocationMap = dynamic(() => import('./PostLocationMap'), {
       <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
     </div>
   ),
+})
+
+// Memoized map wrapper to prevent re-renders
+const MemoizedMap = memo(function MemoizedMap({
+  lat,
+  lng,
+  incidentType
+}: {
+  lat: number
+  lng: number
+  incidentType: string
+}) {
+  return (
+    <PostLocationMap
+      lat={lat}
+      lng={lng}
+      incidentType={incidentType}
+    />
+  )
 })
 
 interface PostWithDetails extends Post {
@@ -158,7 +177,7 @@ export default function PostDetailPage({ postId }: Props) {
           {/* Location Map */}
           {post.location && (
             <div className="mb-6">
-              <PostLocationMap
+              <MemoizedMap
                 lat={post.location.lat}
                 lng={post.location.lng}
                 incidentType={post.incident_type}

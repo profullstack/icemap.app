@@ -48,7 +48,7 @@ export default function PostLocationMap({ lat, lng, incidentType }: Props) {
   const icon = incidentIcons[incidentType] || incidentIcons.other
 
   return (
-    <div className="relative rounded-xl overflow-hidden border border-white/10">
+    <div className="relative rounded-xl overflow-hidden border border-white/10" style={{ height: '200px' }}>
       <MapContainer
         center={[lat, lng]}
         zoom={14}
@@ -58,7 +58,7 @@ export default function PostLocationMap({ lat, lng, incidentType }: Props) {
         touchZoom={true}
         scrollWheelZoom={true}
         doubleClickZoom={true}
-        className="h-48 w-full"
+        style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
