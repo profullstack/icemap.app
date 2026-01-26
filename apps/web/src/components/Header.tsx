@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { track, events } from '@/lib/analytics'
 import InstallButton from './InstallButton'
@@ -39,18 +40,15 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-[1000] glass border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur opacity-50 group-hover:opacity-75 transition-opacity" />
-            <div className="relative bg-gradient-to-r from-indigo-500 to-purple-500 p-1.5 rounded-lg">
-              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-              </svg>
-            </div>
-          </div>
-          <span className="font-bold text-white text-lg tracking-tight">
-            ice<span className="gradient-text">map</span>
-          </span>
+        <Link href="/" className="flex items-center group">
+          <Image
+            src="/logo.svg"
+            alt="icemap"
+            width={120}
+            height={32}
+            className="h-8 w-auto"
+            priority
+          />
         </Link>
 
         <nav className="flex items-center gap-2 sm:gap-3">
