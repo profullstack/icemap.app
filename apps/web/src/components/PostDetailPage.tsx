@@ -54,6 +54,16 @@ interface PostWithDetails extends Post {
   links?: { url: string; title?: string }[]
 }
 
+interface NearbyPost {
+  id: string
+  city: string | null
+  state: string | null
+  summary: string
+  incident_type: string
+  created_at: string
+  distance_meters: number
+}
+
 interface Props {
   postId: string
 }
@@ -62,11 +72,33 @@ export default function PostDetailPage({ postId }: Props) {
   const [post, setPost] = useState<PostWithDetails | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [nearbyPosts, setNearbyPosts] = useState<NearbyPost[]>([])
   const { isAdmin } = useAdmin()
 
   useEffect(() => {
     fetchPost()
   }, [postId])
+
+  // Fetch nearby posts when we have the post location
+  useEffect(() => {
+    if (post?.location) {
+      fetchNearbyPosts(post.location.lat, post.location.lng, post.id)
+    }
+  }, [post?.location, post?.id])
+
+  async function fetchNearbyPosts(lat: number, lng: number, excludeId: string) {
+    try {
+      const res = await fetch(
+        `/api/posts/nearby?lat=${lat}&lng=${lng}&radius=100&exclude=${excludeId}&limit=5`
+      )
+      if (res.ok) {
+        const data = await res.json()
+        setNearbyPosts(data.posts || [])
+      }
+    } catch (err) {
+      console.error('Failed to fetch nearby posts:', err)
+    }
+  }
 
   async function fetchPost() {
     try {
@@ -255,6 +287,56 @@ export default function PostDetailPage({ postId }: Props) {
             comments={post.comments}
             onCommentAdded={handleCommentAdded}
           />
+
+          {/* Nearby Incidents */}
+          {nearbyPosts.length > 0 && (
+            <div className="mt-8 pt-6 border-t border-gray-700">
+              <h3 className="text-sm font-medium text-gray-400 mb-4 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Nearby Incidents
+              </h3>
+              <div className="space-y-3">
+                {nearbyPosts.map((nearbyPost) => {
+                  const distanceMiles = Math.round(nearbyPost.distance_meters / 1609.34)
+                  const typeLabel = nearbyPost.incident_type.replace(/_/g, ' ')
+                  const location = [nearbyPost.city, nearbyPost.state].filter(Boolean).join(', ')
+
+                  return (
+                    <Link
+                      key={nearbyPost.id}
+                      href={`/post/${nearbyPost.id}`}
+                      className="block p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-blue-600/50 text-blue-300 capitalize">
+                              {typeLabel}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {distanceMiles} mi away
+                            </span>
+                          </div>
+                          <p className="text-white text-sm line-clamp-2 group-hover:text-indigo-300 transition-colors">
+                            {nearbyPost.summary}
+                          </p>
+                          {location && (
+                            <p className="text-gray-500 text-xs mt-1">{location}</p>
+                          )}
+                        </div>
+                        <svg className="w-4 h-4 text-gray-500 group-hover:text-white transition-colors flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <Footer />
