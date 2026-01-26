@@ -28,9 +28,15 @@ export default function PostLocationMap({ lat, lng, incidentType }: Props) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<L.Map | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return
+    console.log('PostLocationMap useEffect:', { mapRef: !!mapRef.current, mapInstance: !!mapInstanceRef.current, lat, lng })
+
+    if (!mapRef.current || mapInstanceRef.current) {
+      console.log('PostLocationMap: early return', { hasRef: !!mapRef.current, hasInstance: !!mapInstanceRef.current })
+      return
+    }
 
     try {
       // Initialize map
@@ -46,6 +52,8 @@ export default function PostLocationMap({ lat, lng, incidentType }: Props) {
       })
 
       mapInstanceRef.current = map
+      setInitialized(true)
+      console.log('PostLocationMap: map initialized successfully')
 
       // Add tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -91,7 +99,10 @@ export default function PostLocationMap({ lat, lng, incidentType }: Props) {
 
   return (
     <div className="relative rounded-xl overflow-hidden border border-white/10">
-      <div ref={mapRef} className="h-48 w-full" />
+      <div className="absolute top-1 left-1 z-[1001] text-xs text-yellow-400 bg-black/50 px-1 rounded">
+        init={initialized ? 'yes' : 'no'}
+      </div>
+      <div ref={mapRef} className="h-48 w-full bg-gray-700" />
       <div className="absolute bottom-2 right-2 z-[1000]">
         <a
           href={`https://www.google.com/maps?q=${lat},${lng}`}
