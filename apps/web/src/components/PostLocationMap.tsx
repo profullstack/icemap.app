@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { MapContainer, TileLayer, Marker } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -18,6 +18,26 @@ const incidentColors: Record<string, { from: string; to: string }> = {
   other: { from: '#6b7280', to: '#4b5563' },
 }
 
+// Create icons for each incident type
+const incidentIcons: Record<string, L.DivIcon> = Object.fromEntries(
+  Object.entries(incidentColors).map(([key, { from, to }]) => [
+    key,
+    L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="
+        background: linear-gradient(135deg, ${from} 0%, ${to} 100%);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 0 2px rgba(255,255,255,0.2);
+      "></div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+    }),
+  ])
+)
+
 interface Props {
   lat: number
   lng: number
@@ -25,78 +45,27 @@ interface Props {
 }
 
 export default function PostLocationMap({ lat, lng, incidentType }: Props) {
-  const mapRef = useRef<HTMLDivElement>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [initialized, setInitialized] = useState(false)
-
-  useEffect(() => {
-    if (!mapRef.current) return
-
-    let map: L.Map | null = null
-
-    try {
-      // Initialize map
-      map = L.map(mapRef.current, {
-        center: [lat, lng],
-        zoom: 14,
-        zoomControl: true,
-        attributionControl: false,
-        dragging: true,
-        touchZoom: true,
-        scrollWheelZoom: true,
-        doubleClickZoom: true,
-      })
-
-      // Add tile layer
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-      }).addTo(map)
-
-      // Create marker with gradient icon
-      const colors = incidentColors[incidentType] || incidentColors.other
-      const icon = L.divIcon({
-        className: 'custom-marker',
-        html: `<div style="
-          background: linear-gradient(135deg, ${colors.from} 0%, ${colors.to} 100%);
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          border: 3px solid white;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 0 2px rgba(255,255,255,0.2);
-        "></div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-      })
-
-      L.marker([lat, lng], { icon }).addTo(map)
-      setInitialized(true)
-    } catch (err) {
-      console.error('PostLocationMap error:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load map')
-    }
-
-    // Cleanup
-    return () => {
-      if (map) {
-        map.remove()
-      }
-    }
-  }, [lat, lng, incidentType])
-
-  if (error) {
-    return (
-      <div className="h-48 w-full bg-red-900/20 rounded-xl flex items-center justify-center text-red-400 text-sm">
-        Map error: {error}
-      </div>
-    )
-  }
+  const icon = incidentIcons[incidentType] || incidentIcons.other
 
   return (
     <div className="relative rounded-xl overflow-hidden border border-white/10">
-      <div className="absolute top-1 left-1 z-[1001] text-xs text-yellow-400 bg-black/50 px-1 rounded">
-        init={initialized ? 'yes' : 'no'}
-      </div>
-      <div ref={mapRef} className="h-48 w-full bg-gray-700" />
+      <MapContainer
+        center={[lat, lng]}
+        zoom={14}
+        zoomControl={true}
+        attributionControl={false}
+        dragging={true}
+        touchZoom={true}
+        scrollWheelZoom={true}
+        doubleClickZoom={true}
+        className="h-48 w-full"
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; OpenStreetMap contributors'
+        />
+        <Marker position={[lat, lng]} icon={icon} />
+      </MapContainer>
       <div className="absolute bottom-2 right-2 z-[1000]">
         <a
           href={`https://www.google.com/maps?q=${lat},${lng}`}

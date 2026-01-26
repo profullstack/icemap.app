@@ -115,11 +115,8 @@ export default function PostDetail({ postId }: Props) {
         </p>
       </div>
 
-      {/* Location Map - Debug info */}
-      <div className="mb-2 text-xs text-green-400 font-mono">
-        DEBUG: location={JSON.stringify(post.location)}
-      </div>
-      {post.location ? (
+      {/* Location Map */}
+      {post.location && (
         <div className="mb-6">
           <PostLocationMap
             lat={post.location.lat}
@@ -127,8 +124,6 @@ export default function PostDetail({ postId }: Props) {
             incidentType={post.incident_type}
           />
         </div>
-      ) : (
-        <div className="mb-6 text-yellow-500 text-sm">Debug: No location data</div>
       )}
 
       {/* Media Gallery */}
