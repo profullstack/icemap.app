@@ -14,7 +14,10 @@ import { useAdmin } from '@/hooks/useAdmin'
 import { track, events } from '@/lib/analytics'
 import { getTimeAgo, getTimeUntil } from '@/lib/time'
 
-const PostLocationMap = dynamic(() => import('./PostLocationMap'), { ssr: false })
+const PostLocationMap = dynamic(() => import('./PostLocationMap'), {
+  ssr: false,
+  loading: () => <div className="h-48 w-full bg-gray-800 rounded-xl animate-pulse" />
+})
 
 interface PostWithDetails extends Post {
   media: Media[]
@@ -112,8 +115,11 @@ export default function PostDetail({ postId }: Props) {
         </p>
       </div>
 
-      {/* Location Map */}
-      {post.location && (
+      {/* Location Map - Debug info */}
+      <div className="mb-2 text-xs text-green-400 font-mono">
+        DEBUG: location={JSON.stringify(post.location)}
+      </div>
+      {post.location ? (
         <div className="mb-6">
           <PostLocationMap
             lat={post.location.lat}
@@ -121,6 +127,8 @@ export default function PostDetail({ postId }: Props) {
             incidentType={post.incident_type}
           />
         </div>
+      ) : (
+        <div className="mb-6 text-yellow-500 text-sm">Debug: No location data</div>
       )}
 
       {/* Media Gallery */}

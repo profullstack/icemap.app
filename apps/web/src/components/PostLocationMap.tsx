@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -27,53 +27,67 @@ interface Props {
 export default function PostLocationMap({ lat, lng, incidentType }: Props) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<L.Map | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return
 
-    // Initialize map
-    const map = L.map(mapRef.current, {
-      center: [lat, lng],
-      zoom: 11,
-      zoomControl: false,
-      attributionControl: false,
-      dragging: true,
-      touchZoom: true,
-      scrollWheelZoom: false,
-      doubleClickZoom: true,
-    })
+    try {
+      // Initialize map
+      const map = L.map(mapRef.current, {
+        center: [lat, lng],
+        zoom: 11,
+        zoomControl: false,
+        attributionControl: false,
+        dragging: true,
+        touchZoom: true,
+        scrollWheelZoom: false,
+        doubleClickZoom: true,
+      })
 
-    mapInstanceRef.current = map
+      mapInstanceRef.current = map
 
-    // Add tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-    }).addTo(map)
+      // Add tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+      }).addTo(map)
 
-    // Create marker with gradient icon
-    const colors = incidentColors[incidentType] || incidentColors.other
-    const icon = L.divIcon({
-      className: 'custom-marker',
-      html: `<div style="
-        background: linear-gradient(135deg, ${colors.from} 0%, ${colors.to} 100%);
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        border: 3px solid white;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 0 2px rgba(255,255,255,0.2);
-      "></div>`,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-    })
+      // Create marker with gradient icon
+      const colors = incidentColors[incidentType] || incidentColors.other
+      const icon = L.divIcon({
+        className: 'custom-marker',
+        html: `<div style="
+          background: linear-gradient(135deg, ${colors.from} 0%, ${colors.to} 100%);
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          border: 3px solid white;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 0 2px rgba(255,255,255,0.2);
+        "></div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+      })
 
-    L.marker([lat, lng], { icon }).addTo(map)
+      L.marker([lat, lng], { icon }).addTo(map)
 
-    // Cleanup
-    return () => {
-      map.remove()
-      mapInstanceRef.current = null
+      // Cleanup
+      return () => {
+        map.remove()
+        mapInstanceRef.current = null
+      }
+    } catch (err) {
+      console.error('PostLocationMap error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load map')
     }
   }, [lat, lng, incidentType])
+
+  if (error) {
+    return (
+      <div className="h-48 w-full bg-red-900/20 rounded-xl flex items-center justify-center text-red-400 text-sm">
+        Map error: {error}
+      </div>
+    )
+  }
 
   return (
     <div className="relative rounded-xl overflow-hidden border border-white/10">

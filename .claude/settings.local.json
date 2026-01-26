@@ -71,7 +71,9 @@
       "Bash(node --experimental-strip-types --check:*)",
       "Bash(node --experimental-strip-types:*)",
       "Bash(pnpm why:*)",
-      "Bash(xargs ls:*)"
+      "Bash(xargs ls:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:icemap.app)"
     ],
     "deny": [
       "Bash(npm *)",
