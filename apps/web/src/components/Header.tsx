@@ -44,9 +44,9 @@ export default function Header() {
           <Image
             src="/logo.svg"
             alt="icemap"
-            width={120}
-            height={32}
-            className="h-8 w-auto"
+            width={150}
+            height={40}
+            className="h-10 w-auto"
             priority
           />
         </Link>

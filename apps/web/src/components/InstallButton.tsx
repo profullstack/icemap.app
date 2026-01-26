@@ -85,9 +85,9 @@ export default function InstallButton() {
         <Image
           src="/PWA-dark-en.svg"
           alt="Install as Progressive Web App"
-          width={120}
-          height={36}
-          className="h-8 w-auto"
+          width={150}
+          height={45}
+          className="h-10 w-auto"
         />
       </button>
 
