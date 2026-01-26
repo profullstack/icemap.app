@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
 import type { Post, Comment, Media } from '@/types'
 import VoteButtons from './VoteButtons'
 import FavoriteButton from './FavoriteButton'
@@ -12,6 +13,8 @@ import AdminDeleteButton from './AdminDeleteButton'
 import { useAdmin } from '@/hooks/useAdmin'
 import { track, events } from '@/lib/analytics'
 import { getTimeAgo, getTimeUntil } from '@/lib/time'
+
+const PostLocationMap = dynamic(() => import('./PostLocationMap'), { ssr: false })
 
 interface PostWithDetails extends Post {
   media: Media[]
@@ -108,6 +111,17 @@ export default function PostDetail({ postId }: Props) {
           {post.state}
         </p>
       </div>
+
+      {/* Location Map */}
+      {post.location && (
+        <div className="mb-6">
+          <PostLocationMap
+            lat={post.location.lat}
+            lng={post.location.lng}
+            incidentType={post.incident_type}
+          />
+        </div>
+      )}
 
       {/* Media Gallery */}
       {post.media.length > 0 && (
