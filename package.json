@@ -9,7 +9,9 @@
     "lint": "pnpm --filter @icemap/web lint",
     "test": "pnpm --filter @icemap/web test",
     "prepare": "git config core.hooksPath .githooks || true",
-    "generate-user": "pnpm --filter @icemap/web exec tsx ../../scripts/generate-user.ts"
+    "generate-user": "pnpm --filter @icemap/web exec tsx ../../scripts/generate-user.ts",
+    "postinstall": "pnpm dlx @socketsecurity/socket-patch apply --silent --ecosystems npm",
+    "dependencies": "pnpm dlx @socketsecurity/socket-patch apply --silent --ecosystems npm"
   },
   "engines": {
     "node": ">=24.0.0",
