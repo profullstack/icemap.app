@@ -58,3 +58,7 @@ packages/supabase/supabase/.temp/
 # Debug
 .debug/
 supabase/.temp/
+
+# Claude Code: local-only, machine-specific (keep shared config committed)
+**/.claude/settings.local.json
+**/.claude/worktrees/
