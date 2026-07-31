@@ -1,0 +1,47 @@
+{
+  "patches": {
+    "pkg:npm/fast-xml-parser@5.2.5": {
+      "uuid": "66ab43a3-7f62-4fcb-bd27-330b23591c44",
+      "exportedAt": "Mon, 16 Mar 2026 22:23:27 GMT",
+      "files": {
+        "package/lib/fxp.cjs": {
+          "beforeHash": "75fa525146d7813c879f23945fd94bb1597355fa88773fb225d8a0a580b222f1",
+          "afterHash": "d77e16cb8ece7ad71855831dbd483336b0d847d06f1967bb0785bc2338e6a453"
+        },
+        "package/lib/fxp.min.js": {
+          "beforeHash": "c90c4d9dc58520b6f0401390407b76d90babcc3b93b04187eb4d1b2c1399ac04",
+          "afterHash": "25323f5a8329402ddd5b12690919aedfb91f5fd98e18931ea1a6d73ca4ec8d4c"
+        },
+        "package/lib/fxparser.min.js": {
+          "beforeHash": "85df38a51a95ca3ee7ad310199c9876865648a428ab19da957c376ac0f35b019",
+          "afterHash": "ed030fd3c8078b1e4e97e3706c793ca56b9e84798d269360d419364d9fd27ff1"
+        },
+        "package/src/v6/EntitiesParser.js": {
+          "beforeHash": "3ebb2d7bc3405623692cee6e774dd2c5ba59b5e03e62d5a8c1c76856d1270ae8",
+          "afterHash": "f90a0550df6525f7f6c41a2c2f1a69c1dbda0a4582581ed6132008b6f1ea31ab"
+        },
+        "package/src/xmlparser/DocTypeReader.js": {
+          "beforeHash": "9e73b787367abe0bffdd140e5c2a8db80b533fb80ce062d0a97be26c1f6cbf99",
+          "afterHash": "f02688fb81c13f26529d1c75f382f825420c7c44f963d5ffb46248352acc5604"
+        },
+        "package/src/xmlparser/OrderedObjParser.js": {
+          "beforeHash": "5f3a5fbd7f0a1b672f3ce69695c25c81731141392a787eccebe0e7651c72f30b",
+          "afterHash": "e218ca2bbc47e52f8aa24865faccf27b982b20e6a68bc312ca2755520e474150"
+        }
+      },
+      "vulnerabilities": {
+        "GHSA-m7jm-9gc2-mpf2": {
+          "cves": [
+            "CVE-2026-25896"
+          ],
+          "summary": "fast-xml-parser has an entity encoding bypass via regex injection in DOCTYPE entity names",
+          "severity": "CRITICAL",
+          "description": "# Entity encoding bypass via regex injection in DOCTYPE entity names\n\n## Summary\n\nA dot (`.`) in a DOCTYPE entity name is treated as a regex wildcard during entity replacement, allowing an attacker to shadow built-in XML entities (`&lt;`, `&gt;`, `&amp;`, `&quot;`, `&apos;`) with arbitrary values. This bypasses entity encoding and leads to XSS when parsed output is rendered.\n\n## Details\n\nThe fix for CVE-2023-34104 addressed some regex metacharacters in entity names but missed `.` (period), which is valid in XML names per the W3C spec.\n\nIn `DocTypeReader.js`, entity names are passed directly to `RegExp()`:\n\n```js\nentities[entityName] = {\n    regx: RegExp(`&${entityName};`, \"g\"),\n    val: val\n};\n```\n\nAn entity named `l.` produces the regex `/&l.;/g` where `.` matches **any character**, including the `t` in `&lt;`. Since DOCTYPE entities are replaced before built-in entities, this shadows `&lt;` entirely.\n\nThe same issue exists in `OrderedObjParser.js:81` (`addExternalEntities`), and in the v6 codebase - `EntitiesParser.js` has a `validateEntityName` function with a character blacklist, but `.` is not included:\n\n```js\n// v6 EntitiesParser.js line 96\nconst specialChar = \"!?\\\\/[]$%{}^&*()<>|+\";  // no dot\n```\n\n## Shadowing all 5 built-in entities\n\n| Entity name | Regex created | Shadows |\n|---|---|---|\n| `l.` | `/&l.;/g` | `&lt;` |\n| `g.` | `/&g.;/g` | `&gt;` |\n| `am.` | `/&am.;/g` | `&amp;` |\n| `quo.` | `/&quo.;/g` | `&quot;` |\n| `apo.` | `/&apo.;/g` | `&apos;` |\n\n## PoC\n\n```js\nconst { XMLParser } = require(\"fast-xml-parser\");\n\nconst xml = `<?xml version=\"1.0\"?>\n<!DOCTYPE foo [\n  <!ENTITY l. \"<img src=x onerror=alert(1)>\">\n]>\n<root>\n  <text>Hello &lt;b&gt;World&lt;/b&gt;</text>\n</root>`;\n\nconst result = new XMLParser().parse(xml);\nconsole.log(result.root.text);\n// Hello <img src=x onerror=alert(1)>b>World<img src=x onerror=alert(1)>/b>\n```\n\nNo special parser options needed - `processEntities: true` is the default.\n\nWhen an app renders `result.root.text` in a page (e.g. `innerHTML`, template interpolation, SSR), the injected `<img onerror>` fires.\n\n`&amp;` can be shadowed too:\n\n```js\nconst xml2 = `<?xml version=\"1.0\"?>\n<!DOCTYPE foo [\n  <!ENTITY am. \"'; DROP TABLE users;--\">\n]>\n<root>SELECT * FROM t WHERE name='O&amp;Brien'</root>`;\n\nconst r = new XMLParser().parse(xml2);\nconsole.log(r.root);\n// SELECT * FROM t WHERE name='O'; DROP TABLE users;--Brien'\n```\n\n## Impact\n\nThis is a complete bypass of XML entity encoding. Any application that parses untrusted XML and uses the output in HTML, SQL, or other injection-sensitive contexts is affected.\n\n- Default config, no special options\n- Attacker can replace any `&lt;` / `&gt;` / `&amp;` / `&quot;` / `&apos;` with arbitrary strings\n- Direct XSS vector when parsed XML content is rendered in a page\n- v5 and v6 both affected\n\n## Suggested fix\n\nEscape regex metacharacters before constructing the replacement regex:\n\n```js\nconst escaped = entityName.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\nentities[entityName] = {\n    regx: RegExp(`&${escaped};`, \"g\"),\n    val: val\n};\n```\n\nFor v6, add `.` to the blacklist in `validateEntityName`:\n\n```js\nconst specialChar = \"!?\\\\/[].{}^&*()<>|+\";\n```\n\n## Severity\n\n**CWE-185** (Incorrect Regular Expression)\n\n**CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:H/A:N - 9.3 (CRITICAL)**\n\nEntity decoding is a fundamental trust boundary in XML processing. This completely undermines it with no preconditions."
+        }
+      },
+      "description": "",
+      "license": "MIT",
+      "tier": "free"
+    }
+  }
+}
