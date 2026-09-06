@@ -1,4 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { provenanceBlock, type Verdict } from '@profullstack/form-guard'
+import { contactGuard } from '@/lib/contact-guard'
+
+/**
+ * User input is interpolated into the notification email's HTML. Without
+ * escaping, a submitter can inject markup into the mail we read.
+ */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
 
 const SUBJECT_LABELS: Record<string, string> = {
   bug: 'Bug Report',
@@ -17,6 +32,33 @@ export async function POST(request: NextRequest) {
   }
 
   const { name, email, subject, message } = body
+
+  // Spam checks run before validation on purpose: a bot that gets
+  // "Name must be at least 2 characters" back has learned what to send
+  // next time, where one that gets a plain success has learned nothing.
+  let verdict: Verdict | null = null
+  if (contactGuard) {
+    verdict = await contactGuard.check({
+      fields: body as unknown as Record<string, unknown>,
+      headers: request.headers,
+    })
+    if (!verdict.allow) {
+      if (verdict.action === 'drop') {
+        console.warn(`contact: dropped submission (${verdict.reason}) ip=${verdict.ip ?? '?'}`)
+        return NextResponse.json({ success: true }, { status: 200 })
+      }
+      if (verdict.action === 'limited') {
+        return NextResponse.json(
+          { error: 'Too many messages from this connection. Please try again later.' },
+          { status: 429 }
+        )
+      }
+      return NextResponse.json(
+        { error: 'That took too long, or came through too quickly. Please send it again.' },
+        { status: 400 }
+      )
+    }
+  }
 
   // Validate name
   if (!name || typeof name !== 'string' || name.trim().length < 2) {
@@ -49,7 +91,9 @@ export async function POST(request: NextRequest) {
   }
 
   // Send email (async, don't wait)
-  sendContactEmail(name.trim(), email.trim(), subject, message.trim()).catch(console.error)
+  sendContactEmail(name.trim(), email.trim(), subject, message.trim(), verdict).catch(
+    console.error
+  )
 
   return NextResponse.json({ success: true }, { status: 200 })
 }
@@ -58,7 +102,8 @@ async function sendContactEmail(
   name: string,
   email: string,
   subject: string,
-  message: string
+  message: string,
+  verdict: Verdict | null
 ) {
   const adminEmail = process.env.ADMIN_EMAIL
   const smtpHost = process.env.SMTP_HOST
@@ -87,12 +132,21 @@ async function sendContactEmail(
 
     const subjectLabel = SUBJECT_LABELS[subject] || subject
     const truncatedMessage = message.length > 50 ? message.substring(0, 50) + '...' : message
+    // A flagged message still arrives; the tag is only so an inbox rule
+    // can sort it. Scoring never drops anything.
+    const spamTag = verdict?.suspicious ? ` [spam? ${verdict.score}]` : ''
+    // Where it came from and why it scored as it did. None of this is in
+    // the headers: the notification is sent by us to us, so it
+    // authenticates identically whoever filled the form in.
+    const provenance = verdict
+      ? `\n\n${provenanceBlock({ ip: verdict.ip, userAgent: verdict.userAgent, verdict })}`
+      : ''
 
     await transporter.sendMail({
       from: smtpFrom || smtpUser,
       to: adminEmail,
       replyTo: email,
-      subject: `[icemap Contact] ${subjectLabel}: ${truncatedMessage}`,
+      subject: `[icemap Contact] ${subjectLabel}: ${truncatedMessage}${spamTag}`,
       text: `
 New contact form submission from icemap.
 
@@ -101,7 +155,7 @@ Email: ${email}
 Subject: ${subjectLabel}
 
 Message:
-${message}
+${message}${provenance}
       `.trim(),
       html: `
 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
@@ -109,20 +163,21 @@ ${message}
   <table style="width: 100%; border-collapse: collapse;">
     <tr>
       <td style="padding: 8px 0; color: #6b7280; width: 100px;"><strong>From:</strong></td>
-      <td style="padding: 8px 0; color: #1f2937;">${name}</td>
+      <td style="padding: 8px 0; color: #1f2937;">${escapeHtml(name)}</td>
     </tr>
     <tr>
       <td style="padding: 8px 0; color: #6b7280;"><strong>Email:</strong></td>
-      <td style="padding: 8px 0;"><a href="mailto:${email}" style="color: #6366f1;">${email}</a></td>
+      <td style="padding: 8px 0;"><a href="mailto:${encodeURIComponent(email)}" style="color: #6366f1;">${escapeHtml(email)}</a></td>
     </tr>
     <tr>
       <td style="padding: 8px 0; color: #6b7280;"><strong>Subject:</strong></td>
-      <td style="padding: 8px 0; color: #1f2937;">${subjectLabel}</td>
+      <td style="padding: 8px 0; color: #1f2937;">${escapeHtml(subjectLabel)}</td>
     </tr>
   </table>
   <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
   <h3 style="color: #374151; margin-bottom: 10px;">Message:</h3>
-  <div style="background: #f9fafb; padding: 16px; border-radius: 8px; white-space: pre-wrap; color: #1f2937;">${message}</div>
+  <div style="background: #f9fafb; padding: 16px; border-radius: 8px; white-space: pre-wrap; color: #1f2937;">${escapeHtml(message)}</div>
+  ${provenance ? `<pre style="font: 12px/1.5 monospace; color: #9ca3af;">${escapeHtml(provenance.trim())}</pre>` : ''}
   <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
   <p style="color: #9ca3af; font-size: 12px;">
     This message was sent from the icemap contact form. Reply directly to respond to the sender.
