@@ -10,7 +10,14 @@ const SUBJECT_OPTIONS = [
   { value: 'other', label: 'Other' },
 ]
 
-export default function ContactForm() {
+interface ContactFormProps {
+  /** Minted by the page at render time; proves the form was loaded. */
+  token: string | null
+  tokenName: string | null
+  honeypotName: string | null
+}
+
+export default function ContactForm({ token, tokenName, honeypotName }: ContactFormProps) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [subject, setSubject] = useState('')
@@ -18,6 +25,8 @@ export default function ContactForm() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  // Honeypot. Nothing visible sets this, so anything in it came from a bot.
+  const [honeypot, setHoneypot] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -31,7 +40,14 @@ export default function ContactForm() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, subject, message }),
+        body: JSON.stringify({
+          name,
+          email,
+          subject,
+          message,
+          ...(tokenName && token ? { [tokenName]: token } : {}),
+          ...(honeypotName ? { [honeypotName]: honeypot } : {}),
+        }),
       })
 
       if (!res.ok) {
@@ -78,6 +94,23 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="glass rounded-2xl p-8 border border-white/10">
+      {/* Honeypot. Positioned off-canvas rather than display:none — some
+          bots skip fields they can tell are not rendered. */}
+      {honeypotName && (
+        <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+          <label>
+            Website
+            <input
+              type="text"
+              name={honeypotName}
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </label>
+        </div>
+      )}
       {error && (
         <div className="mb-6 px-4 py-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm">
           {error}

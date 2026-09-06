@@ -1,3 +1,15 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+# pnpm 11 refuses to install until each package with a build script is
+# answered for, which blocks the pre-commit hook. All four are mainstream
+# dependencies that genuinely need to build native binaries.
+allowBuilds:
+  bcrypt: true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+# @profullstack/form-guard is newer than the repo's minimum release age.
+# It is our own package, published from profullstack/form-guard.
+minimumReleaseAgeExclude:
+  - '@profullstack/form-guard@0.1.1'

@@ -12,6 +12,7 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@profullstack/form-guard": "^0.1.1",
     "@supabase/supabase-js": "^2.47.0",
     "bcrypt": "^6.0.0",
     "fluent-ffmpeg": "^2.1.3",

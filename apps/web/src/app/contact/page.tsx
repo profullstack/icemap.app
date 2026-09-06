@@ -1,13 +1,21 @@
 import type { Metadata } from 'next'
 import Footer from '@/components/Footer'
 import ContactForm from '@/components/ContactForm'
+import { contactGuard } from '@/lib/contact-guard'
 
 export const metadata: Metadata = {
   title: 'Contact - icemap',
   description: 'Get in touch with the icemap team. Report bugs, ask questions, or share feedback.',
 }
 
-export default function ContactPage() {
+// The form carries a token minted at render time, so this page must not
+// be cached — a stale page would hand every visitor the same dead token.
+export const dynamic = 'force-dynamic'
+
+export default async function ContactPage() {
+  const token = contactGuard ? await contactGuard.issue() : null
+  const guardFields = token ? contactGuard!.fields(token) : null
+
   return (
     <div className="min-h-screen bg-gray-900 pt-14 flex flex-col">
       <div className="flex-1">
@@ -24,7 +32,11 @@ export default function ContactPage() {
             </p>
           </div>
 
-          <ContactForm />
+          <ContactForm
+            token={token}
+            tokenName={guardFields?.token.name ?? null}
+            honeypotName={guardFields?.honeypot.name ?? null}
+          />
         </div>
       </div>
       <Footer />
