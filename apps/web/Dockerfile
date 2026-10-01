@@ -14,7 +14,11 @@ WORKDIR /app
 COPY package.json bun.lock bunfig.toml ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/supabase/package.json ./packages/supabase/
-RUN bun install --frozen-lockfile
+# --ignore-scripts: the root postinstall (socket-patch) has no musl build and
+# exits 1 here, and it patched nothing in the image anyway (.socket/ was
+# never copied in). The trusted deps need no script: bcrypt ships a musl
+# prebuild, sharp/esbuild/unrs-resolver use platform packages.
+RUN bun install --frozen-lockfile --ignore-scripts
 
 # Stage 2: build
 FROM deps AS build
