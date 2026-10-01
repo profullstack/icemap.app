@@ -1,4 +1,4 @@
-#!/usr/bin/env -S npx tsx
+#!/usr/bin/env bun
 
 import { createClient } from '@supabase/supabase-js'
 import * as bcrypt from 'bcrypt'

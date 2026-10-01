@@ -44,13 +44,13 @@ git clone https://github.com/yourusername/icemap.app.git
 cd icemap.app
 
 # Install dependencies
-pnpm install
+bun install
 
 # Set up environment variables
 cp .env.example .env.local
 
 # Start development server
-pnpm dev
+bun run dev
 ```
 
 ## 📖 Documentation

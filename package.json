@@ -2,19 +2,27 @@
   "name": "icemap.app",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "bun@1.4.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "pnpm --filter @icemap/web dev",
-    "build": "pnpm --filter @icemap/web build",
-    "start": "pnpm --filter @icemap/web start",
-    "lint": "pnpm --filter @icemap/web lint",
-    "test": "pnpm --filter @icemap/web test",
+    "dev": "bun --filter @icemap/web dev",
+    "build": "bun --filter @icemap/web build",
+    "start": "bun --filter @icemap/web start",
+    "lint": "bun --filter @icemap/web lint",
+    "typecheck": "bun --filter @icemap/web typecheck",
+    "test": "bun --filter @icemap/web test",
     "prepare": "git config core.hooksPath .githooks || true",
-    "generate-user": "pnpm --filter @icemap/web exec tsx ../../scripts/generate-user.ts",
-    "postinstall": "pnpm dlx @socketsecurity/socket-patch apply --silent --ecosystems npm",
-    "dependencies": "pnpm dlx @socketsecurity/socket-patch apply --silent --ecosystems npm"
+    "generate-user": "cd apps/web && bun ../../scripts/generate-user.ts",
+    "postinstall": "bunx @socketsecurity/socket-patch apply --silent --ecosystems npm",
+    "dependencies": "bunx @socketsecurity/socket-patch apply --silent --ecosystems npm"
   },
-  "engines": {
-    "node": ">=24.0.0",
-    "pnpm": ">=9.0.0"
-  }
+  "trustedDependencies": [
+    "bcrypt",
+    "esbuild",
+    "sharp",
+    "unrs-resolver"
+  ]
 }
