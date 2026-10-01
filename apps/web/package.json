@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start -p ${PORT:-8080}",
+    "dev": "bun --bun next dev",
+    "build": "bun --bun next build",
+    "start": "bun --bun next start -p ${PORT:-8080}",
     "lint": "eslint .",
-    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "test:vitest": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"
   },

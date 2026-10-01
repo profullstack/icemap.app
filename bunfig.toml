@@ -1,0 +1,4 @@
+[install]
+# Hoisted, so socket-patch (postinstall) finds the packages it patches; it
+# does not recognise the isolated node_modules/.bun layout.
+linker = "hoisted"
