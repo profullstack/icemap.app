@@ -24,5 +24,8 @@
     "esbuild",
     "sharp",
     "unrs-resolver"
-  ]
+  ],
+  "overrides": {
+    "fast-xml-parser": "^5.3.5"
+  }
 }

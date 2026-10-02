@@ -1,16 +1,12 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { wwwRedirectLocation } from './lib/www-redirect'
 
 export function middleware(request: NextRequest) {
-  const host = request.headers.get('host') || ''
-
-  // Redirect www to non-www
-  if (host.startsWith('www.')) {
-    const newHost = host.replace('www.', '')
-    const url = request.nextUrl.clone()
-    url.host = newHost
-    url.protocol = 'https'
-    return NextResponse.redirect(url, 301)
+  // Redirect www to non-www, built from the public host (never the server port)
+  const location = wwwRedirectLocation(request.headers, request.nextUrl.pathname, request.nextUrl.search)
+  if (location) {
+    return NextResponse.redirect(location, 301)
   }
 
   return NextResponse.next()
