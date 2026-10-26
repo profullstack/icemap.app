@@ -3,6 +3,7 @@ import Script from 'next/script'
 import './globals.css'
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
 import Header from '@/components/Header'
+import { Footer } from '@profullstack/footer/react'
 
 export const metadata: Metadata = {
   title: 'icemap - Anonymous Incident Reporting',
@@ -92,6 +93,8 @@ export default function RootLayout({
         <ServiceWorkerRegistration />
         <Header />
         {children}
+        {/* Server-rendered: the rssamplifier ring verifier reads HTML and never runs script. */}
+        <Footer site="https://icemap.app/" since={2026} />
       </body>
     </html>
   )
