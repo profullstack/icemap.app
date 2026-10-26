@@ -26,6 +26,7 @@
     "unrs-resolver"
   ],
   "overrides": {
-    "fast-xml-parser": "^5.3.5"
+    "fast-xml-parser": "^5.3.5",
+    "tinypool": "^2.2.0"
   }
 }
