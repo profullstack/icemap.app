@@ -158,3 +158,26 @@ select:focus-visible {
 ::selection {
   background: rgba(102, 126, 234, 0.4);
 }
+
+/* The contact form (@profullstack/contact-form), styled as the hand-built one was. */
+.cf-form { display: flex; flex-direction: column; gap: 1.5rem; }
+.cf-form .cf-field label { display: block; font-size: 0.875rem; font-weight: 500; color: rgb(209 213 219); margin-bottom: 0.5rem; }
+.cf-form .cf-optional { color: rgb(107 114 128); }
+.cf-form .cf-field input,
+.cf-form .cf-field select,
+.cf-form .cf-field textarea { width: 100%; padding: 0.75rem 1rem; background: rgb(255 255 255 / 0.05); border: 1px solid rgb(255 255 255 / 0.1); border-radius: 0.75rem; color: #fff; transition: all 0.15s; }
+.cf-form .cf-field select option { background: rgb(17 24 39); }
+.cf-form .cf-field textarea { resize: none; }
+.cf-form .cf-field input::placeholder,
+.cf-form .cf-field textarea::placeholder { color: rgb(107 114 128); }
+.cf-form .cf-field input:focus,
+.cf-form .cf-field select:focus,
+.cf-form .cf-field textarea:focus { outline: none; border-color: rgb(99 102 241 / 0.5); box-shadow: 0 0 0 2px rgb(99 102 241 / 0.5); }
+.cf-form .cf-help { color: rgb(107 114 128); font-size: 0.75rem; margin-top: 0.25rem; }
+.cf-form .cf-error { padding: 0.75rem 1rem; border-radius: 0.75rem; background: rgb(244 63 94 / 0.1); border: 1px solid rgb(244 63 94 / 0.2); color: rgb(251 113 133); font-size: 0.875rem; }
+.cf-form .cf-submit { width: 100%; padding: 1rem; background: linear-gradient(to right, rgb(99 102 241), rgb(168 85 247)); color: #fff; border-radius: 0.75rem; font-weight: 600; transition: all 0.15s; }
+.cf-form .cf-submit:hover { box-shadow: 0 10px 15px -3px rgb(99 102 241 / 0.25); }
+.cf-form .cf-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+.cf-notice { background: var(--glass-bg); border: 1px solid rgb(255 255 255 / 0.1); border-radius: 1rem; padding: 2rem; text-align: center; color: rgb(156 163 175); }
+/* The honeypot: off-canvas, never visible (a visible one drops real people). */
+.cf-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }

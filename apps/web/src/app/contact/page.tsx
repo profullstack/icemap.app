@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Footer from '@/components/Footer'
 import ContactForm from '@/components/ContactForm'
-import { contactGuard } from '@/lib/contact-guard'
+import { contact } from '@/lib/contact'
 
 export const metadata: Metadata = {
   title: 'Contact - icemap',
@@ -13,8 +13,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function ContactPage() {
-  const token = contactGuard ? await contactGuard.issue() : null
-  const guardFields = token ? contactGuard!.fields(token) : null
+  const form = await contact.props()
 
   return (
     <div className="min-h-screen bg-gray-900 pt-14 flex flex-col">
@@ -32,11 +31,7 @@ export default async function ContactPage() {
             </p>
           </div>
 
-          <ContactForm
-            token={token}
-            tokenName={guardFields?.token.name ?? null}
-            honeypotName={guardFields?.honeypot.name ?? null}
-          />
+          <ContactForm form={form} />
         </div>
       </div>
       <Footer />

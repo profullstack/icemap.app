@@ -7,10 +7,10 @@
     },
     "apps/web": {
       "name": "@icemap/web",
-      "version": "0.1.0",
+      "version": "0.1.3",
       "dependencies": {
+        "@profullstack/contact-form": "0.1.0",
         "@profullstack/footer": "0.4.0",
-        "@profullstack/form-guard": "^0.1.1",
         "@supabase/supabase-js": "^2.47.0",
         "bcrypt": "^6.0.0",
         "fluent-ffmpeg": "^2.1.3",
@@ -364,9 +364,13 @@
 
     "@nolyfill/is-core-module": ["@nolyfill/is-core-module@1.0.39", "", {}, "sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA=="],
 
+    "@profullstack/contact-form": ["@profullstack/contact-form@0.1.0", "", { "dependencies": { "@profullstack/emailer": "^1.0.3", "@profullstack/form-guard": "^0.3.0" }, "peerDependencies": { "react": ">=18.0.0" }, "optionalPeers": ["react"] }, "sha512-X+qnTk9MPG5EXDMCiRS/CI0DcQLZ7YVVnsnkN/EwThB5ZqPw8TgTYb7C0NzuJsQnO5f2GCBPxtRNiP+mpAXMDw=="],
+
+    "@profullstack/emailer": ["@profullstack/emailer@1.0.3", "", {}, "sha512-VyAtCcfnSI6LOwJvWogCr3ZNmEsaZw+iuWrqnosLsdcKsbRyCrCmXigMNZJZEjlgYlR+lK//PwNPG+xtCFvWAw=="],
+
     "@profullstack/footer": ["@profullstack/footer@0.4.0", "", { "peerDependencies": { "react": ">=18" }, "optionalPeers": ["react"], "bin": { "profullstack-footer": "bin/profullstack-footer.js" } }, "sha512-EJZnMUQmWDi9Gzx6BAjogloeaPFFSSCHtHJuC9dsXiOz8M87hfn6Z+Zx9AMYWk8s6xemPrPlkXKGB3PZugkcEA=="],
 
-    "@profullstack/form-guard": ["@profullstack/form-guard@0.1.1", "", {}, "sha512-RGLGfQhjq40f+JqEhSmsJnS0I5sFWjYdrYx4VYtkUqz8xvioN2yyR+6uFK0mnDAStKrYytlngg3meUsrChm/OQ=="],
+    "@profullstack/form-guard": ["@profullstack/form-guard@0.3.0", "", {}, "sha512-/rn5xd4mMG6eXGe85BmPfhz7zz3mmsmNV7U6a1bNhATIpVtKKEUEGF4QPrFx8sg6YDtpFkzmvjNEaFJm3DbFxg=="],
 
     "@react-leaflet/core": ["@react-leaflet/core@3.0.0", "", { "peerDependencies": { "leaflet": "^1.9.0", "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha512-3EWmekh4Nz+pGcr+xjf0KNyYfC3U2JjnkWsh0zcqaexYqmmB5ZhH37kz41JXGmKzpaMZCnPofBBm64i+YrEvGQ=="],
 

@@ -1,6 +1,6 @@
 {
   "name": "@icemap/web",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "private": true,
   "scripts": {
     "dev": "bun --bun next dev",
@@ -14,8 +14,8 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@profullstack/contact-form": "0.1.0",
     "@profullstack/footer": "0.4.0",
-    "@profullstack/form-guard": "^0.1.1",
     "@supabase/supabase-js": "^2.47.0",
     "bcrypt": "^6.0.0",
     "fluent-ffmpeg": "^2.1.3",
