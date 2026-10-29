@@ -22,8 +22,6 @@ export const SUBJECT_LABELS: Record<string, string> = {
   other: 'Other',
 }
 
-const atLeast = (n: number) => `^[\\s\\S]{${n},}$`
-
 const secret = env('FORM_GUARD_SECRET') ?? env('SMTP_PASSWORD')
 
 export const contact = createContactForm({
@@ -75,8 +73,7 @@ export const contact = createContactForm({
         label: 'Name',
         placeholder: 'Your name',
         maxLength: 100,
-        pattern: atLeast(2),
-        patternMessage: 'Name must be at least 2 characters',
+        minLength: 2,
       },
       email: { label: 'Email', placeholder: 'your@email.com' },
       message: {
@@ -84,8 +81,7 @@ export const contact = createContactForm({
         placeholder: 'How can we help?',
         rows: 6,
         maxLength: 2000,
-        pattern: atLeast(10),
-        patternMessage: 'Message must be at least 10 characters',
+        minLength: 10,
         help: 'Up to 2000 characters',
       },
     },
