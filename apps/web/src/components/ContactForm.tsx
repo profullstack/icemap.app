@@ -11,17 +11,16 @@ import { track, events } from '@/lib/analytics'
  */
 export default function ContactForm({ form }: { form: ContactFormProps }) {
   return (
-    <div
-      onSubmitCapture={(e) => {
-        const subject = new FormData(e.target as HTMLFormElement).get('subject')
-        track(events.CONTACT_SUBMIT, { subject: typeof subject === 'string' ? subject : '' })
+    <Form
+      {...form}
+      className="glass rounded-2xl p-8 border border-white/10"
+      resetLabel="Send Another Message"
+      onSubmit={(body) => {
+        track(events.CONTACT_SUBMIT, { subject: body.subject ?? '' })
+        return undefined
       }}
-    >
-      <Form
-        {...form}
-        className="glass rounded-2xl p-8 border border-white/10"
-        onSent={(body) => track(events.CONTACT_SUCCESS, { subject: body.subject ?? '' })}
-      />
-    </div>
+      onSent={(body) => track(events.CONTACT_SUCCESS, { subject: body.subject ?? '' })}
+      onError={(message) => track(events.CONTACT_ERROR, { error: message })}
+    />
   )
 }

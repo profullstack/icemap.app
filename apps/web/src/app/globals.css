@@ -178,6 +178,9 @@ select:focus-visible {
 .cf-form .cf-submit { width: 100%; padding: 1rem; background: linear-gradient(to right, rgb(99 102 241), rgb(168 85 247)); color: #fff; border-radius: 0.75rem; font-weight: 600; transition: all 0.15s; }
 .cf-form .cf-submit:hover { box-shadow: 0 10px 15px -3px rgb(99 102 241 / 0.25); }
 .cf-form .cf-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-.cf-notice { background: var(--glass-bg); border: 1px solid rgb(255 255 255 / 0.1); border-radius: 1rem; padding: 2rem; text-align: center; color: rgb(156 163 175); }
+.cf-sent { background: var(--glass-bg); border: 1px solid rgb(255 255 255 / 0.1); border-radius: 1rem; padding: 2rem; text-align: center; }
+.cf-notice { color: rgb(156 163 175); margin-bottom: 1.5rem; }
+.cf-reset { padding: 0.75rem 1.5rem; background: rgb(255 255 255 / 0.05); border: 1px solid rgb(255 255 255 / 0.1); border-radius: 0.75rem; color: rgb(209 213 219); transition: all 0.15s; }
+.cf-reset:hover { background: rgb(255 255 255 / 0.1); color: #fff; }
 /* The honeypot: off-canvas, never visible (a visible one drops real people). */
 .cf-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
