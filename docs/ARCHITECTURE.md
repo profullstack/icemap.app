@@ -329,7 +329,7 @@ NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-vapid-public-key
 VAPID_PRIVATE_KEY=your-vapid-private-key
 
 # App Config
-NEXT_PUBLIC_APP_URL=https://icemap.app
+NEXT_PUBLIC_APP_URL=https://icemap.pwa.pit.world
 NODE_ENV=production
 
 # Optional: Mapbox (if using Mapbox instead of OSM)

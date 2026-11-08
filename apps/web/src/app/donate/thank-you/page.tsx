@@ -45,7 +45,7 @@ export default function ThankYouPage() {
             <p className="text-gray-500 text-sm mb-4">Help spread the word</p>
             <div className="flex justify-center gap-4">
               <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent('I just donated to @icemap_app to help keep this community safety tool free and open source!')}&url=${encodeURIComponent('https://icemap.app/donate')}`}
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent('I just donated to @icemap_app to help keep this community safety tool free and open source!')}&url=${encodeURIComponent('https://icemap.pwa.pit.world/donate')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3 rounded-xl bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-all"
@@ -55,7 +55,7 @@ export default function ThankYouPage() {
                 </svg>
               </a>
               <a
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://icemap.app/donate')}`}
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://icemap.pwa.pit.world/donate')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3 rounded-xl bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-all"
