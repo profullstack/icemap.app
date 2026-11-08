@@ -107,7 +107,7 @@ async function sendReportEmail(
       },
     })
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://icemap.app'
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://icemap.pwa.pit.world'
 
     await transporter.sendMail({
       from: smtpFrom || smtpUser,

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://icemap.app'
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://icemap.pwa.pit.world'
 
     const res = await fetch(`${COINPAY_API_URL}/payments/create`, {
       method: 'POST',

@@ -8,12 +8,12 @@ import { Footer } from '@profullstack/footer/react'
 export const metadata: Metadata = {
   title: 'icemap - Anonymous Incident Reporting',
   description: 'Anonymous, real-time incident reporting on a map. No accounts. No tracking. Posts auto-delete after 7 days.',
-  metadataBase: new URL('https://icemap.app'),
+  metadataBase: new URL('https://icemap.pwa.pit.world'),
   manifest: '/manifest.json',
   openGraph: {
     title: 'icemap - Anonymous Incident Reporting',
     description: 'Anonymous, real-time incident reporting on a map. No accounts. No tracking. Posts auto-delete after 7 days.',
-    url: 'https://icemap.app',
+    url: 'https://icemap.pwa.pit.world',
     siteName: 'icemap',
     images: [
       {
@@ -84,7 +84,7 @@ export default function RootLayout({
         <Script
           defer
           data-website-id="dfid_ApxSLoyHaiNiNl5mXq82L"
-          data-domain="icemap.app"
+          data-domain="icemap.pwa.pit.world"
           src="https://datafa.st/js/script.js"
           strategy="afterInteractive"
         />
@@ -94,7 +94,7 @@ export default function RootLayout({
         <Header />
         {children}
         {/* Server-rendered: the rssamplifier ring verifier reads HTML and never runs script. */}
-        <Footer site="https://icemap.app/" since={2026} />
+        <Footer site="https://icemap.pwa.pit.world/" since={2026} />
       </body>
     </html>
   )
