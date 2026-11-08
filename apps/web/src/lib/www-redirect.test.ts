@@ -5,13 +5,14 @@ import { wwwRedirectLocation } from './www-redirect'
 const h = (o: Record<string, string>) => new Headers(o)
 
 test('www goes to the apex on https with path and query', () => {
-  assert.equal(wwwRedirectLocation(h({ host: 'www.icemap.app' }), '/map', '?a=1'), 'https://icemap.pwa.pit.world/map?a=1')
+  assert.equal(wwwRedirectLocation(h({ host: 'www.icemap.app' }), '/map', '?a=1'), 'https://icemap.app/map?a=1')
+  assert.equal(wwwRedirectLocation(h({ host: 'www.icemap.pwa.pit.world' }), '/map', ''), 'https://icemap.pwa.pit.world/map')
 })
 test('never carries the internal port', () => {
-  assert.equal(wwwRedirectLocation(h({ host: 'www.icemap.app:8080' }), '/', ''), 'https://icemap.pwa.pit.world/')
+  assert.equal(wwwRedirectLocation(h({ host: 'www.icemap.app:8080' }), '/', ''), 'https://icemap.app/')
   assert.equal(
     wwwRedirectLocation(h({ host: '0.0.0.0:8080', 'x-forwarded-host': 'www.icemap.app' }), '/', ''),
-    'https://icemap.pwa.pit.world/',
+    'https://icemap.app/',
   )
 })
 test('apex passes through', () => {
