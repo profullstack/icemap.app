@@ -90,6 +90,8 @@ export default function RootLayout({
         />
         {/* WebMCP (@profullstack/webmcp) + icemap's read-only incident tools
             (public/webmcp-tools.js) for an AI agent in the visitor's browser. */}
+        {/* type="module" scripts are deferred by the browser; the rule only knows classic scripts. */}
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script
           type="module"
           data-webmcp=""
@@ -103,6 +105,7 @@ export default function RootLayout({
             contact: '/contact',
           })}
         />
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script type="module" src="/webmcp-tools.js" />
       </head>
       <body className="bg-gray-900 text-white antialiased">
