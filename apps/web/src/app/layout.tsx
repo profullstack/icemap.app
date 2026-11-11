@@ -88,6 +88,22 @@ export default function RootLayout({
           src="https://datafa.st/js/script.js"
           strategy="afterInteractive"
         />
+        {/* WebMCP (@profullstack/webmcp) + icemap's read-only incident tools
+            (public/webmcp-tools.js) for an AI agent in the visitor's browser. */}
+        <script
+          type="module"
+          data-webmcp=""
+          src="https://cdn.jsdelivr.net/npm/@profullstack/webmcp@0/src/embed.js"
+          data-pages={JSON.stringify({
+            map: '/',
+            recent: '/recent',
+            report: '/post',
+            about: '/about',
+            donate: '/donate',
+            contact: '/contact',
+          })}
+        />
+        <script type="module" src="/webmcp-tools.js" />
       </head>
       <body className="bg-gray-900 text-white antialiased">
         <ServiceWorkerRegistration />
