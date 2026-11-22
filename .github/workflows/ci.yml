@@ -41,7 +41,7 @@ jobs:
             sleep 1
           done
           set -e
-          for p in / /about /recent /login /sw.js /manifest.json; do
+          for p in / /about /recent /login /sw.js /manifest.json /sitemap.xml /robots.txt; do
             code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8080$p")
             echo "$p $code"; [ "$code" = 200 ]
           done
