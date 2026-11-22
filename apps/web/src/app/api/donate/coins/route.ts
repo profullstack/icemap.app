@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+import { COINPAY_UA } from '@/lib/coinpay-ua'
+
 const COINPAY_API_URL = 'https://coinpayportal.com/api'
 
 export async function GET() {
@@ -19,6 +21,7 @@ export async function GET() {
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,
+          'User-Agent': COINPAY_UA,
           Accept: 'application/json',
         },
         next: { revalidate: 300 }, // Cache for 5 minutes
